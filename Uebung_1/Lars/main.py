@@ -127,10 +127,38 @@ def task_c():
     plt.show()
 
 
+def praesenz():
+    import warnings
+    warnings.filterwarnings('ignore')
+    c = np.linspace(0, 1 / 2, 10000, dtype=np.complex64)
+
+    plt.figure(figsize=(8, 6))
+
+    def solution1(x):
+        return (-1 + np.sqrt(1 - 4 * x)) / 2
+
+    def solution2(x):
+        return (-1 - np.sqrt(1 - 4 * x)) / 2
+
+    y1 = solution1(c)
+    y2 = solution2(c)
+
+    plt.plot(c, np.real(y1), label="Re(+)", alpha=0.7)
+    plt.plot(c, np.imag(y1), label="Imag(+)", alpha=0.7)
+    plt.plot(c, np.real(y2), label="Re(-)", alpha=0.7)
+    plt.plot(c, np.imag(y2), label="Imag(-)", alpha=0.7)
+
+    plt.xlabel("c")
+    plt.ylabel(r"$\vert x \vert^2$")
+    plt.legend()
+    plt.show()
+
+
 def main(argv: list) -> int:
-    task_a()
-    task_b()
-    task_c()
+    praesenz()
+    # task_a()
+    # task_b()
+    # task_c()
     return 0
 
 
