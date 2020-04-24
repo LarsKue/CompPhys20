@@ -128,8 +128,6 @@ def task_c():
 
 
 def praesenz():
-    import warnings
-    warnings.filterwarnings('ignore')
     c = np.linspace(0, 1 / 2, 10000, dtype=np.complex64)
 
     plt.figure(figsize=(8, 6))
@@ -142,6 +140,9 @@ def praesenz():
 
     y1 = solution1(c)
     y2 = solution2(c)
+
+    # c for plotting must be real
+    c = np.real(c)
 
     plt.plot(c, np.real(y1), label="Re(+)", alpha=0.7)
     plt.plot(c, np.imag(y1), label="Imag(+)", alpha=0.7)
