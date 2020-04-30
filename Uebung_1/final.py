@@ -1,4 +1,13 @@
 
+"""
+Submission for Uebung 1 for Computational Physics 2020
+Group Members:
+Daniel Kreuzberger
+Lars Kuehmichel
+David Weinand
+"""
+
+
 import sys
 import math
 import numpy as np
