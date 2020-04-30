@@ -156,10 +156,10 @@ def praesenz():
 
 
 def main(argv: list) -> int:
-    praesenz()
-    # task_a()
-    # task_b()
-    # task_c()
+    #praesenz()
+    task_a()
+    task_b()
+    task_c()
     return 0
 
 
