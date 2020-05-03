@@ -1,4 +1,3 @@
-
 import math
 from typing import Union
 
@@ -33,6 +32,11 @@ class Vec3:
 
     def unit(self):
         return Vec3(self.x, self.y, self.z) / math.sqrt(self.abs_sq())
+
+    def cross(self, other: "Vec3") -> "Vec3":
+        return Vec3(self.y * other.z - self.z * other.y,
+                    self.z * other.x - self.x * other.z,
+                    self.x * other.y - self.y * other.x)
 
     def __repr__(self):
         return "Vec3 { x: " + repr(self.x) + ", y: " + repr(self.y) + ", z: " + repr(self.z) + " }"

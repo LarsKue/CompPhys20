@@ -1,12 +1,14 @@
 
+import math
+from scipy import constants as consts
 from typing import Union, Iterable
 from vec3 import Vec3
 
 
 class ParticleMeta(type):
     """
-    Meta class to capture one single value of the gravitational constant
-    which is used across all instances of the Particle class
+    Meta class to capture one single value of physical constants
+    which are used across all instances of the Particle class
     """
     def __init__(cls, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -32,6 +34,17 @@ class Particle(metaclass=ParticleMeta):
         direction = other.position - self.position
         return Particle.G * self.mass * other.mass / direction.abs_sq() * direction.unit()
 
+    def runge_lenz_laplace(self, other: "Particle") -> Vec3:
+        # TODO: Check with group members
+        r = self.position - other.position
+        p = self.gamma() * self.mass * self.velocity
+        L = r.cross(p)
+        return self.velocity.cross(L) / (Particle.G * self.mass * other.mass) - r.unit()
+
+    def gamma(self):
+        # lorentz factor
+        return 1 / math.sqrt(1 - self.velocity.abs_sq() / consts.c ** 2)
+
     def step_explicit_euler(self, h: Union[float, int], particles: Iterable = None) -> "Particle":
         """
         x_n+1 = x_n + h * v_n
@@ -54,6 +67,10 @@ class Particle(metaclass=ParticleMeta):
 
         # calculate the explicit euler trajectory of the particle based on the total force
         return Particle(self.position + h * self.velocity, self.velocity + (h / self.mass) * total_force, self.mass)
+
+    def step_leapfrog(self, h: Union[float, int], particles: Iterable = None) -> "Particle":
+        # TODO: Homework
+        raise NotImplemented
 
     def step_implicit_euler(self, h: Union[float, int], particles: Iterable = None) -> "Particle":
         """
