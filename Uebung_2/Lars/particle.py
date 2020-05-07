@@ -1,8 +1,8 @@
-
 import math
 from scipy import constants as consts
 from typing import Union, Iterable
 from vec3 import Vec3
+from copy import copy
 
 
 class ParticleMeta(type):
@@ -10,6 +10,7 @@ class ParticleMeta(type):
     Meta class to capture one single value of physical constants
     which are used across all instances of the Particle class
     """
+
     def __init__(cls, *args, **kwargs):
         super().__init__(*args, **kwargs)
         cls.__G = 1
@@ -30,71 +31,76 @@ class Particle(metaclass=ParticleMeta):
         self.mass = float(mass)
 
     def attraction_with(self, other: "Particle") -> float:
-        # F = (G mM / r^2) e_r
+        """
+        F = (G mM / r^2) e_r
+        :return: The gravitational attraction acting on self between the two particles
+        """
         direction = other.position - self.position
         return Particle.G * self.mass * other.mass / direction.abs_sq() * direction.unit()
 
-    def runge_lenz_laplace(self, other: "Particle") -> Vec3:
-        # TODO: Check with group members
-        r = self.position - other.position
-        p = self.gamma() * self.mass * self.velocity
+    def laplace_runge_lenz(self, other: "Particle") -> Vec3:
+        """
+        calculate and return the LRL vector for the rest system of self
+        i.e. the system where other orbits around self
+        """
+        r = other.position - self.position
+        v = other.velocity - self.velocity
+        p = other.mass * v
         L = r.cross(p)
-        return self.velocity.cross(L) / (Particle.G * self.mass * other.mass) - r.unit()
+        return p.cross(L) - Particle.G * self.mass * other.mass * r.unit()
 
-    def gamma(self):
-        # lorentz factor
-        return 1 / math.sqrt(1 - self.velocity.abs_sq() / consts.c ** 2)
-
-    def step_explicit_euler(self, h: Union[float, int], particles: Iterable = None) -> "Particle":
+    def eccentricity(self, other: "Particle"):
         """
-        x_n+1 = x_n + h * v_n
-        v_n+1 = v_n + h * a_n
-        :param h: The time step
-        :param particles: All particles in the space this particle resides in (possibly including itself)
+        see laplace_runge_lenz
         """
-        if particles is None:
-            # no other interacting particles ==> a = 0
-            # ==> only update the particle's position based on its velocity
-            return Particle(self.position + h * self.velocity, self.velocity, self.mass)
+        return self.laplace_runge_lenz(other) / (Particle.G * self.mass * other.mass)
 
+    def total_interaction_force(self, particles: Iterable["Particle"] = None) -> Vec3:
+        """
+        :param particles: All the particles of the system self resides in, possibly including itself
+        :return: The total force the system enacts on self
+        """
         # accumulate total interaction force with all particles
-        total_force = Vec3()
-        for p in particles:
-            if p is self:
-                # skip "self-interaction"
-                continue
-            total_force += self.attraction_with(p)
+        result = Vec3()
+        if particles:
+            for p in particles:
+                if p is self or math.isclose((p.position - self.position).abs_sq(), 0.0):
+                    # skip "self-interaction" for the particle itself (same memory location)
+                    # or if the particles are right on top of each other
+                    # since usually this means it's the same particle
+                    continue
+                result += self.attraction_with(p)
 
-        # calculate the explicit euler trajectory of the particle based on the total force
-        return Particle(self.position + h * self.velocity, self.velocity + (h / self.mass) * total_force, self.mass)
+        return result
 
-    def step_leapfrog(self, h: Union[float, int], particles: Iterable = None) -> "Particle":
-        # TODO: Homework
-        raise NotImplemented
+    def step_explicit_euler(self, h: Union[float, int], particles: Iterable["Particle"] = None) -> "Particle":
+        # this is a full step
+        force = self.total_interaction_force(particles)
+        velocity = self.velocity + (h / self.mass) * force
+        position = self.position + h * velocity
 
-    def step_implicit_euler(self, h: Union[float, int], particles: Iterable = None) -> "Particle":
-        """
-        x_n+1 = x_n + h * v_n+1
-        v_n+1 = v_n + h * a_n+1
-        :param h: The time step
-        :param particles: All particles in the space this particle resides in (possibly including itself)
-        """
-        raise NotImplemented
+        return Particle(position, velocity, self.mass)
 
-    def step_midpoint(self, h: Union[float, int], particles: Iterable = None) -> "Particle":
-        """
-        x_n+1 = x_n + h * v_n+1/2
-        v_n+1 = v_n + h * a_n+1/2
-        :param h: The time step
-        :param particles: All particles in the space this particle resides in (possibly including itself)
-        """
-        raise NotImplemented
+    def step_implicit_euler(self, h: Union[float, int], original_self: "Particle",
+                            particles: Iterable["Particle"] = None):
+        # this is one iteration step
+        force = self.total_interaction_force(particles)
+        velocity = original_self.velocity + (h / self.mass) * force
+        position = original_self.position + h * velocity
+        return Particle(position, velocity, self.mass)
 
-    def step_rk4(self, h: Union[float, int], particles: Iterable = None) -> "Particle":
-        """
-        x_n+1 = x_n + h / 6 * (k1 + 2k2 + 2k3 + k4)
-        v_n+1 = v_n + h / 6 * (l1 + 2l2 + 2l3 + l4)
-        :param h: The time step
-        :param particles: All particles in the space this particle resides in (possibly including itself)
-        """
-        raise NotImplemented
+    def step_position_kdk_leapfrog(self, h: Union[float, int], particles: Iterable["Particle"] = None) -> "Particle":
+        # this is the positional part of kdk leapfrog
+        # we can directly calculate x_n+1
+        return Particle(self.position + h * self.velocity, self.velocity, self.mass)
+
+    def step_velocity_kdk_leapfrog(self, h: Union[float, int], particles: Iterable["Particle"] = None):
+        # this is the velocity part of kdk leapfrog
+        # we can directly calculate v_n+1/2 (or v_n+1)
+        return Particle(self.position, self.velocity + (h / 2) * self.total_interaction_force(particles), self.mass)
+
+    def __copy__(self):
+        return Particle(copy(self.position), copy(self.velocity), copy(self.mass))
+
+    def __repr__(self):
+        return "Particle { position: " + repr(self.position) + ", velocity: " + repr(self.velocity) + " }"

@@ -1,4 +1,5 @@
 import math
+from copy import copy
 from typing import Union
 
 
@@ -28,15 +29,27 @@ class Vec3:
         return self * other
 
     def abs_sq(self) -> float:
+        """
+        :return: Absolute Value of self squared
+        """
         return self.x ** 2 + self.y ** 2 + self.z ** 2
 
     def unit(self):
+        """
+        :return: The unit vector of self
+        """
         return Vec3(self.x, self.y, self.z) / math.sqrt(self.abs_sq())
 
     def cross(self, other: "Vec3") -> "Vec3":
+        """
+        :return: The cross-product (or vector-product) between self and other
+        """
         return Vec3(self.y * other.z - self.z * other.y,
                     self.z * other.x - self.x * other.z,
                     self.x * other.y - self.y * other.x)
 
     def __repr__(self):
         return "Vec3 { x: " + repr(self.x) + ", y: " + repr(self.y) + ", z: " + repr(self.z) + " }"
+
+    def __copy__(self):
+        return Vec3(copy(self.x), copy(self.y), copy(self.z))
