@@ -8,6 +8,13 @@ from particle import Particle
 from n_particle_simulation import NParticleSimulation
 import random  # for random particle generation
 
+"""
+Abgabe für
+Lars Kühmichel
+Daniel Kreuzberger
+David Weinand
+"""
+
 
 """
 How to use:
