@@ -9,9 +9,10 @@ from n_particle_simulation import NParticleSimulation
 import random  # for random particle generation
 
 """
-Abgabe für
-Lars Kühmichel
+Submission for Uebung 2 for Computational Physics 2020
+Group Members:
 Daniel Kreuzberger
+Lars Kuehmichel
 David Weinand
 """
 
