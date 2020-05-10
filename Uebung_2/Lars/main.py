@@ -164,12 +164,14 @@ def run_simulation(n_steps, h, M, R, v, video_filename, show=True):
               end="")
 
         # update the positions
-        n_body_system.step_explicit_euler(h)
+        # n_body_system.step_explicit_euler(h)
 
         # tolerance may need manual tuning depending on time step
         # n_body_system.step_implicit_euler(h, sq_tolerance=1e-3)
 
         # n_body_system.step_kdk_leapfrog(h)
+
+        n_body_system.step_rk4(h)
 
         # record the eccentricities for plotting later
         ecc1.append(n_body_system.particles[0].eccentricity(n_body_system.particles[1]))
@@ -183,8 +185,8 @@ def run_simulation(n_steps, h, M, R, v, video_filename, show=True):
     print()
 
     # plot an animation, this may take a long time, so comment this in if you want fancy animated results
-    # plot_animation(positions, [[e.abs_sq() for e in ecc1], [e.abs_sq() for e in ecc2]], h, linetrace=True,
-    #                video_filename=video_filename, show=show)
+    plot_animation(positions, [[e.abs_sq() for e in ecc1], [e.abs_sq() for e in ecc2]], h, linetrace=True,
+                   video_filename=video_filename, show=show)
 
     # statically plot the eccentricities
     # this is useful if you set show to True and want to examine a single simulation
@@ -205,10 +207,11 @@ def run_simulation(n_steps, h, M, R, v, video_filename, show=True):
     Two orbits are complete after 8*pi seconds have passed.
     """
 
-    idx = int(8 * math.pi / h)
-
-    # ecc1 and ecc2 are roughly equal for all simulations
-    delta_E = 4 * abs(ecc1[idx].abs_sq() - 1)
+    # idx = int(8 * math.pi / h)
+    #
+    # # ecc1 and ecc2 are roughly equal for all simulations
+    # delta_E = 4 * abs(ecc1[idx].abs_sq() - 1)
+    delta_E = 0
 
     if show:
         plt.show()
