@@ -5,7 +5,7 @@ import math
 from matplotlib import animation, pyplot as plt
 from vec3 import Vec3
 from particle import Particle
-from n_particle_simulation import NParticleSystem
+from n_particle_system import NParticleSystem
 import random  # for random particle generation
 
 """
