@@ -1,6 +1,6 @@
 import sys
 from particle import Particle
-from n_particle_simulation import NParticleSimulation
+from n_particle_system import NParticleSystem
 from vec3 import Vec3
 
 from matplotlib import animation, pyplot as plt
@@ -74,25 +74,13 @@ def plot_animation(positions: List[List[Vec3]], time_step: Union[float, int], li
     if save_as:
         anim.save(save_as, fps=1 / time_step, extra_args=["-vcodec", "libx264"])
 
-    print("\ranimation progress: done.")
-
     if show:
-        print("showing figure")
-        fig.show()
+        plt.show()
     else:
         plt.close(fig)
 
 
-def task_a():
-    p1 = Particle(Vec3(-0.97000436, 0.24308753, 0.0), Vec3(-0.46620368, -0.43236573, 0.0), 1.0)
-    p2 = Particle(Vec3(0.97000436, -0.24308753, 0.0), Vec3(-0.46620368, -0.43236573, 0.0), 1.0)
-    p3 = Particle(Vec3(0.0, 0.0, 0.0), Vec3(0.93240737, 0.86473146, 0.0), 1.0)
-
-    n_body_system = NParticleSimulation([p1, p2, p3])
-
-    n_steps = 50000
-    h = 0.001
-
+def run_and_plot(n_body_system, n_steps, h, video_filename):
     positions = [[p.position for p in n_body_system.particles]]
     for i in range(n_steps):
         print("\rcalculation progress: t = {:.2f} / {:.2f} ({:.2f}%)".format(i * h, n_steps * h, 100 * i / n_steps),
@@ -102,11 +90,50 @@ def task_a():
 
     print("\rcalculation progress: done.")
 
-    plot_animation(positions, h, save_as="particle_animation.mp4")
+    plot_animation(positions, h, save_as=video_filename)
+
+
+def task_a():
+    p1 = Particle(Vec3(-0.97000436, 0.24308753, 0.0), Vec3(-0.46620368, -0.43236573, 0.0), 1.0)
+    p2 = Particle(Vec3(0.97000436, -0.24308753, 0.0), Vec3(-0.46620368, -0.43236573, 0.0), 1.0)
+    p3 = Particle(Vec3(0.0, 0.0, 0.0), Vec3(0.93240737, 0.86473146, 0.0), 1.0)
+
+    n_body_system = NParticleSystem([p1, p2, p3])
+
+    n_steps = 5000
+    h = 0.01
+
+    run_and_plot(n_body_system, n_steps, h, "particle_animation.mp4")
+
+
+def task_b():
+    m1 = 3
+    m2 = 4
+    m3 = 5
+    l1 = 3
+    l2 = 4
+    # l3 is defined by l1 and l2
+
+    # first place the particles
+    p1 = Particle(Vec3(0, 0, 0), mass=m2)
+    p2 = Particle(Vec3(l1, 0, 0), mass=m3)
+    p3 = Particle(Vec3(l1, l2, 0), mass=m1)
+
+    n_body_system = NParticleSystem([p1, p2, p3])
+
+    # then shift the system's center of mass to the origin
+    n_body_system.shift_origin(n_body_system.center_of_mass())
+
+    # now simulate
+    n_steps = 5000
+    h = 0.001
+
+    run_and_plot(n_body_system, n_steps, h, "particle_animation.mp4")
 
 
 def main(argv: list) -> int:
-    task_a()
+    # task_a()
+    task_b()
     return 0
 
 

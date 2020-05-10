@@ -2,11 +2,25 @@
 from copy import copy
 from typing import Iterable, Union
 from particle import Particle
+from vec3 import Vec3
 
 
-class NParticleSimulation:
+class NParticleSystem:
     def __init__(self, particles: Iterable[Particle]):
         self.particles = list(particles)
+
+    def center_of_mass(self) -> Vec3:
+        result = Vec3()
+        total_mass = 0.0
+        for p in self.particles:
+            result += p.mass * p.position
+            total_mass += p.mass
+
+        return result / total_mass
+
+    def shift_origin(self, new_origin: Vec3):
+        for p in self.particles:
+            p.position -= new_origin
 
     def evaluate_interaction_forces(self):
         for p1 in self.particles:
