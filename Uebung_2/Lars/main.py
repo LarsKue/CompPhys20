@@ -5,7 +5,7 @@ import math
 from matplotlib import animation, pyplot as plt
 from vec3 import Vec3
 from particle import Particle
-from n_particle_simulation import NParticleSimulation
+from n_particle_system import NParticleSystem
 import random  # for random particle generation
 
 """
@@ -147,7 +147,7 @@ def run_simulation(n_steps, h, M, R, v, video_filename, show=True):
     # particles = [Particle(Vec3(random.normalvariate(0.0, R), random.normalvariate(0.0, R), 0.0),
     #                       Vec3(random.normalvariate(0.0, v), random.normalvariate(0.0, v), 0.0), M) for _ in range(200)]
 
-    n_body_system = NParticleSimulation([p1, p2])
+    n_body_system = NParticleSystem([p1, p2])
 
     # n_body_system = NParticlesSimulation([p1, p2, p3])
     # n_body_system = NParticlesSimulation(particles)

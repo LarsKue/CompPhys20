@@ -4,7 +4,7 @@ from typing import Iterable, Union
 from particle import Particle
 
 
-class NParticleSimulation:
+class NParticleSystem:
     def __init__(self, particles: Iterable[Particle]):
         self.particles = list(particles)
 
