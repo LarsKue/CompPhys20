@@ -4,51 +4,46 @@ import matplotlib.pyplot as plt
 from typing import Union, Callable, Iterable
 
 
-# def rk4_step(y0, x0, f, h, *args, **kwargs):
-#     """ Simple python implementation for one RK4 step.
-#         Inputs:
-#             y_0    - M x 1 numpy array specifying all variables of the ODE at the current time step
-#             x_0    - current time step
-#             f      - function that calculates the derivates of all variables of the ODE
-#             h      - time step size
-#             f_args - Dictionary of additional arguments to be passed to the function f
-#         Output:
-#             yp1 - M x 1 numpy array of variables at time step x0 + h
-#             xp1 - time step x0+h
-#     """
-#     k1 = h * f(y0, x0, *args, **kwargs)
-#     k2 = h * f(y0 + k1 / 2., x0 + h / 2., *args, **kwargs)
-#     k3 = h * f(y0 + k2 / 2., x0 + h / 2., *args, **kwargs)
-#     k4 = h * f(y0 + k3, x0 + h, *args, **kwargs)
-#
-#     xp1 = x0 + h
-#     yp1 = y0 + 1. / 6. * (k1 + 2. * k2 + 2. * k3 + k4)
-#
-#     return yp1, xp1
-#
-#
-# def rk4(y0, x0, f, h, n, *args, **kwargs):
-#     """ Simple implementation of RK4
-#         Inputs:
-#             y_0    - M x 1 numpy array specifying all variables of the ODE at the current time step
-#             x_0    - current time step
-#             f      - function that calculates the derivates of all variables of the ODE
-#             h      - time step size
-#             n      - number of steps
-#             f_args - Dictionary of additional arguments to be passed to the function f
-#         Output:
-#             yn - N+1 x M numpy array with the results of the integration for every time step (includes y0)
-#             xn - N+1 x 1 numpy array with the time step value (includes start x0)
-#     """
-#     yn = np.zeros((n + 1, y0.shape[0]))
-#     xn = np.zeros(n + 1)
-#     yn[0, :] = y0
-#     xn[0] = x0
-#
-#     for m in np.arange(1, n + 1, 1):
-#         yn[m, :], xn[m] = rk4_step(yn[m - 1, :], xn[m - 1], f, h, *args, **kwargs)
-#
-#     return yn, xn
+def rk4_step(y0, x0, f, h, *args, **kwargs):
+    """ Simple python implementation for one RK4 step.
+        Inputs:
+            y_0    - M x 1 numpy array specifying all variables of the ODE at the current time step
+            x_0    - current time step
+            f      - function that calculates the derivates of all variables of the ODE
+            h      - time step size
+            f_args - Dictionary of additional arguments to be passed to the function f
+        Output:
+            yp1 - M x 1 numpy array of variables at time step x0 + h
+            xp1 - time step x0+h
+    """
+    k1 = h * f(y0, x0, *args, **kwargs)
+    k2 = h * f(y0 + k1 / 2., x0 + h / 2., *args, **kwargs)
+    k3 = h * f(y0 + k2 / 2., x0 + h / 2., *args, **kwargs)
+    k4 = h * f(y0 + k3, x0 + h, *args, **kwargs)
+    xp1 = x0 + h
+    yp1 = y0 + 1. / 6. * (k1 + 2. * k2 + 2. * k3 + k4)
+    return yp1, xp1
+
+def rk4(y0, x0, f, h, n, *args, **kwargs):
+    """ Simple implementation of RK4
+        Inputs:
+             y_0    - M x 1 numpy array specifying all variables of the ODE at the current time step
+            x_0    - current time step
+            f      - function that calculates the derivates of all variables of the ODE
+            h      - time step size
+            n      - number of steps
+            f_args - Dictionary of additional arguments to be passed to the function f
+        Output:
+            yn - N+1 x M numpy array with the results of the integration for every time step (includes y0)
+            xn - N+1 x 1 numpy array with the time step value (includes start x0)
+    """
+    yn = np.zeros((n + 1, y0.shape[0]))
+    xn = np.zeros(n + 1)
+    yn[0, :] = y0
+    xn[0] = x0
+    for m in np.arange(1, n + 1, 1):
+        yn[m, :], xn[m] = rk4_step(yn[m - 1, :], xn[m - 1], f, h, *args, **kwargs)
+    return yn, xn
 
 def solve_rk4(f: Callable, y0: Union[int, float], t: Iterable, *args, **kwargs):
     """
@@ -99,37 +94,31 @@ def deviation(y, _, r):
     return -r * y
 
 
-def run_all(y0: Union[float, int], x0: Union[float, int], x1: Union[float, int], f: Callable, f_exact: Callable):
+def praesenz(y0: Union[float, int], x0: Union[float, int], x1: Union[float, int], f: Callable, f_exact: Callable):
     r = 1
-    hs = [1, 0.1, 0.01, 0.001]
+    hs = [1, 0.1, 0.01]
 
     plt.figure(figsize=(8, 8))
     for h in hs:
         n = int((x1 - x0) / h)
         x = np.linspace(x0, x1, n)
         # solve the equation
-        # yn, xn = rk4(np.array([y0]), np.array([x0]), f, h, n, r)
-        x, y = zip(*list(solve_rk4(f, y0, x, r)))
-        print(x)
-        print(y)
-        x = np.array(x)
-        y = np.array(y)
-        err = np.mean(np.abs(y - f_exact(x, r)) / f_exact(x, r))
-
-        # plot
-        plt.plot(x, y, label='stepsize={}, mean error={}'.format(h, err))
+        yn, xn = rk4(np.array([y0]), np.array([x0]), f, h, n, r)
+        err = np.mean(np.abs(yn - f_exact(xn, r)) / f_exact(xn, r))
+        plt.plot(xn, yn, label='stepsize={}, mean error={}'.format(h, err))
 
     n_max = int((x1 - x0) / hs[-1])
     x = np.linspace(x0, x1, n_max)
     plt.plot(x, f_exact(x, r), label="exact")
     plt.legend()
     plt.title('rk4 with different step sizes')
+    plt.savefig('rk4step.pdf')
     plt.show()
 
 
 def main(argv: list) -> int:
 
-    run_all(1, 0, 10, deviation, exact)
+    praesenz(1, 0, 10, deviation, exact)
 
     return 0
 

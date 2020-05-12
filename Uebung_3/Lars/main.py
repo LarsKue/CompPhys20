@@ -78,19 +78,19 @@ def plot_animation(positions: List[List[Vec3]], time_step: Union[float, int], li
 
     if show:
         print("showing figure")
-        fig.show()
+        plt.show()
     else:
         plt.close(fig)
 
 
 def task_a():
-    p1 = Particle(Vec3(-0.97000436, 0.24308753, 0.0), Vec3(-0.46620368, -0.43236573, 0.0), 1.0)
-    p2 = Particle(Vec3(0.97000436, -0.24308753, 0.0), Vec3(-0.46620368, -0.43236573, 0.0), 1.0)
-    p3 = Particle(Vec3(0.0, 0.0, 0.0), Vec3(0.93240737, 0.86473146, 0.0), 1.0)
+    p1 = Particle(Vec3(-1, 1, 0.0), Vec3(0, 0, 0.0), 5.0)
+    p2 = Particle(Vec3(3, 1, 0.0), Vec3(0, 0, 0.0), 4.0)
+    p3 = Particle(Vec3(-1.0, -2.0, 0.0), Vec3(0, 0, 0.0), 3.0)
 
     n_body_system = NParticleSimulation([p1, p2, p3])
 
-    n_steps = 50000
+    n_steps = 5000
     h = 0.001
 
     positions = [[p.position for p in n_body_system.particles]]
