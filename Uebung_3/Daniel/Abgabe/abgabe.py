@@ -88,6 +88,12 @@ def distance(x,y):
     return math.sqrt(Vec3.abs_sq(x-y))
 
 
+def energy(x,y,z):
+    G=1
+    return ((x.mass/2)*Vec3.abs_sq(x.velocity)-(G*x.mass*y.mass)/distance(x.position,y.position)
+            -(G*x.mass*z.mass)/distance(x.position,z.position))
+
+
 def rk4_step(y0, x0, f, h, *args, **kwargs):
     """ Simple python implementation for one RK4 step.
         Inputs:
@@ -208,12 +214,13 @@ def task_b():
     '''This particle setup was calculated by hand'''
     n_body_system = NParticleSimulation([p1, p2, p3])
 
-    n_steps = 10000
-    h = 0.0005
+    n_steps = 100000
+    h = 0.00005
 
     dist1 = [[distance(p1.position,p2.position)]]
     dist2 = [[distance(p2.position,p3.position)]]
     dist3 = [[distance(p1.position,p3.position)]]
+    energytot = [[energy(p1,p2,p3) + energy(p2,p1,p3) + energy(p3,p1,p2)]]
     positions = [[p.position for p in n_body_system.particles]]
     for i in range(n_steps):
         print("\rcalculation progress: t = {:.2f} / {:.2f} ({:.2f}%)".format(i * h, n_steps * h, 100 * i / n_steps),
@@ -223,9 +230,10 @@ def task_b():
         dist1.append([distance(p1.position,p2.position)])
         dist2.append([distance(p2.position,p3.position)])
         dist3.append([distance(p1.position,p3.position)])
-
+        energytot.append([energy(p1, p2, p3) + energy(p2, p1, p3) + energy(p3, p1, p2)])
     print("\rcalculation progress: done.")
     xax = np.linspace(0, h * n_steps, int(n_steps + 1))
+    plt.figure(1,figsize=(8,8))
     plt.plot(xax,dist1,label='distance part 1, part 2')
     plt.plot(xax,dist2,label='distance part 2, part 3')
     plt.plot(xax,dist3,label='distance part 1, part 3')
@@ -234,6 +242,12 @@ def task_b():
     plt.ylabel('distance')
     plt.legend()
     plt.savefig('distances.pdf')
+    plt.figure(2,figsize=(8,8))
+    plt.plot(xax,energytot)
+    plt.yscale('log')
+    plt.xlabel('timesteo')
+    plt.ylabel('total energy of the system')
+    plt.title('development of the total energy over time')
     plot_animation(positions, h, save_as="particle_animation.mp4")
 
 
