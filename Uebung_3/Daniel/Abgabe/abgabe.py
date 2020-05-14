@@ -258,46 +258,64 @@ def task_b():
     h = 0.0001
 
     e_kin_alt = energie_kin([p.mass for p in n_body_system.particles], [p.velocity for p in n_body_system.particles])
+
     dist1 = [distance(p1.position, p2.position)]
     dist2 = [distance(p2.position, p3.position)]
     dist3 = [distance(p1.position, p3.position)]
+
     positions = [[p.position for p in n_body_system.particles]]
+
     energy_tot = [energie_pot(positions[0], positions[0], [p1.mass, p2.mass, p3.mass]) + energie_kin(
         [p.mass for p in n_body_system.particles], [p.velocity for p in n_body_system.particles]) - e_kin_alt]
+
     for i in range(n_steps):
         print("\rcalculation progress: t = {:.2f} / {:.2f} ({:.2f}%)".format(i * h, n_steps * h, 100 * i / n_steps),
               end="")
         n_body_system.step_rk4(h)
+
         positions.append([p.position for p in n_body_system.particles])
         dist1.append(distance(p1.position, p2.position))
         dist2.append(distance(p2.position, p3.position))
         dist3.append(distance(p1.position, p3.position))
+
         energy_tot.append(
             energie_pot(positions[0], positions[i + 1], [p.mass for p in n_body_system.particles]) + energie_kin(
                 [p.mass for p in n_body_system.particles],
                 [p.velocity for p in n_body_system.particles]) - e_kin_alt)
+
     minima = (minima_der_minima(minima_suchen(dist1, h) + minima_suchen(dist2, h) + minima_suchen(dist3, h)))
+
     with open('mini{}.txt'.format(h), 'w') as schreiberling:
         schreiberling.writelines("%s\n" % element for element in minima)
+
     print("\rcalculation progress: done.")
+
     xax = np.linspace(0, h * n_steps, int(n_steps + 1))
+
     plt.figure(1, figsize=(8, 8))
+
     plt.plot(xax, dist1, label='distance part 1, part 2')
     plt.plot(xax, dist2, label='distance part 2, part 3')
     plt.plot(xax, dist3, label='distance part 1, part 3')
+
     plt.yscale('log')
     plt.xlabel('time')
     plt.ylabel('distance')
     plt.legend()
+
     plt.savefig('distances{}.png'.format(h))
+
     plt.figure(2, figsize=(8, 8))
+
     plt.plot(xax, energy_tot)
+
     plt.yscale('log')
     plt.xlabel('timestep')
     plt.ylabel('error of the total energy of the system')
     plt.title('development of the total energy over time')
+
     plt.savefig('energyerror{}.png'.format(h))
-    print(e_kin_alt)
+
     plot_animation(positions, h, save_as="particle_animation{}.mp4".format(h))
 
 
