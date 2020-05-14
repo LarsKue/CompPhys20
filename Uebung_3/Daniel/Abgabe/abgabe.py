@@ -75,7 +75,7 @@ def plot_animation(positions: List[List[Vec3]], time_step: Union[float, int], li
     # if save_as:
     #     anim.save(save_as, fps=1 / time_step, extra_args=["-vcodec", "libx264"])
 
-   #  print("\ranimation progress: done.")
+    #  print("\ranimation progress: done.")
 
     if show:
         print("showing figure")
@@ -84,14 +84,50 @@ def plot_animation(positions: List[List[Vec3]], time_step: Union[float, int], li
         plt.close(fig)
 
 
-def distance(x,y):
-    return math.sqrt(Vec3.abs_sq(x-y))
+def distance(x, y):
+    return math.sqrt(Vec3.abs_sq(x - y))
 
 
-def energy(x,y,z):
-    G=1
-    return ((x.mass/2)*Vec3.abs_sq(x.velocity)-(G*x.mass*y.mass)/distance(x.position,y.position)
-            -(G*x.mass*z.mass)/distance(x.position,z.position))
+def energie_pot(pos_alt, pos_neu, massen):
+    pot = 0
+    for x in range(3):
+        for y in range(3):
+            if x < y:
+                pot += massen[x] * massen[y] * ((1 / distance(pos_alt[x], pos_alt[y])) - (1 / distance(pos_neu[x], pos_neu[y])))
+    return pot
+
+
+def energie_kin(massen, geschw):
+    kin = 0
+    for x in range(3):
+        kin += 1/2 * massen[x] * Vec3.abs_sq(geschw[x])
+    return kin
+
+
+def minima_suchen(pos, h):
+    minima = []
+    if pos[0] > pos[1]:
+        runter = True
+    else:
+        runter = False
+    for x in range(len(pos) - 1):
+        if runter == True and pos[x] < pos[x + 1]:
+            minima.append(x * h)
+        if pos[x] > pos[x + 1]:
+            runter = True
+        else:
+            runter = False
+    return minima
+
+def minima_der_minima(minima):
+    mini_minima = []
+    for c in range(5):
+        for x in range(len(minima)):
+            if minima[x] == min(minima):
+                mini_minima.append(minima[x])
+                minima[x] = max(minima)
+                break
+    return mini_minima
 
 
 def rk4_step(y0, x0, f, h, *args, **kwargs):
@@ -158,7 +194,7 @@ def praesenz(y0: Union[float, int], x0: Union[float, int], x1: Union[float, int]
         yn, xn = rk4(np.array([y0]), np.array([x0]), f, h, n, r)
         err = np.mean(np.abs(yn - f_exact(xn, r)) / f_exact(xn, r))
         plt.plot(xn, yn, label='stepsize={}, mean error={}'.format(h, err))
-    #plot the exact solution
+    # plot the exact solution
     n_max = int((x1 - x0) / hs[-1])
     x = np.linspace(x0, x1, n_max)
     plt.plot(x, f_exact(x, r), label="exact")
@@ -195,6 +231,8 @@ def task_a():
     print("\rcalculation progress: done.")
 
     plot_animation(positions, h, save_as="particle_animation.mp4")
+
+
 '''For this task we implemented our own rk4 algorithm, with this algorithm we can simulate every n particle system and 
 it avoids the mistakes in the program for the presence task. As you can see, the curves are smooth and like expected. For
 smaller step sizes the curves behave like a lying eight. If you take bigger step sizes, you can see that there is an growing
@@ -214,40 +252,45 @@ def task_b():
     '''This particle setup was calculated by hand'''
     n_body_system = NParticleSimulation([p1, p2, p3])
 
-    n_steps = 100000
-    h = 0.00005
 
-    dist1 = [[distance(p1.position,p2.position)]]
-    dist2 = [[distance(p2.position,p3.position)]]
-    dist3 = [[distance(p1.position,p3.position)]]
-    energytot = [[energy(p1,p2,p3) + energy(p2,p1,p3) + energy(p3,p1,p2)]]
+    n_steps = 10000
+    h = 0.0005
+
+    e_kin_alt = energie_kin([p.mass for p in n_body_system.particles], [p.velocity for p in n_body_system.particles])
+    dist1 = [distance(p1.position, p2.position)]
+    dist2 = [distance(p2.position, p3.position)]
+    dist3 = [distance(p1.position, p3.position)]
     positions = [[p.position for p in n_body_system.particles]]
+    energy_tot = [energie_pot(positions[0], positions[0], [p1.mass, p2.mass, p3.mass]) + energie_kin([p.mass for p in n_body_system.particles], [p.velocity for p in n_body_system.particles]) - e_kin_alt]
     for i in range(n_steps):
         print("\rcalculation progress: t = {:.2f} / {:.2f} ({:.2f}%)".format(i * h, n_steps * h, 100 * i / n_steps),
               end="")
         n_body_system.step_rk4(h)
         positions.append([p.position for p in n_body_system.particles])
-        dist1.append([distance(p1.position,p2.position)])
-        dist2.append([distance(p2.position,p3.position)])
-        dist3.append([distance(p1.position,p3.position)])
-        energytot.append([energy(p1, p2, p3) + energy(p2, p1, p3) + energy(p3, p1, p2)])
+        dist1.append(distance(p1.position, p2.position))
+        dist2.append(distance(p2.position, p3.position))
+        dist3.append(distance(p1.position, p3.position))
+        energy_tot.append(energie_pot(positions[0], positions[i + 1], [p.mass for p in n_body_system.particles]) + energie_kin([p.mass for p in n_body_system.particles], [p.velocity for p in n_body_system.particles]) - e_kin_alt)
+    f = file('minima.txt', 'w')
+    f.write(minima_der_minima(minima_suchen(dist1, h) + minima_suchen(dist2, h) + minima_suchen(dist3, h)))
     print("\rcalculation progress: done.")
     xax = np.linspace(0, h * n_steps, int(n_steps + 1))
-    plt.figure(1,figsize=(8,8))
-    plt.plot(xax,dist1,label='distance part 1, part 2')
-    plt.plot(xax,dist2,label='distance part 2, part 3')
-    plt.plot(xax,dist3,label='distance part 1, part 3')
+    plt.figure(1, figsize=(8, 8))
+    plt.plot(xax, dist1, label='distance part 1, part 2')
+    plt.plot(xax, dist2, label='distance part 2, part 3')
+    plt.plot(xax, dist3, label='distance part 1, part 3')
     plt.yscale('log')
     plt.xlabel('time')
     plt.ylabel('distance')
     plt.legend()
     plt.savefig('distances.pdf')
-    plt.figure(2,figsize=(8,8))
-    plt.plot(xax,energytot)
+    plt.figure(2, figsize=(8, 8))
+    plt.plot(xax, energy_tot)
     plt.yscale('log')
-    plt.xlabel('timesteo')
-    plt.ylabel('total energy of the system')
+    plt.xlabel('timestep')
+    plt.ylabel('error of the total energy of the system')
     plt.title('development of the total energy over time')
+    print(e_kin_alt)
     plot_animation(positions, h, save_as="particle_animation.mp4")
 
 
