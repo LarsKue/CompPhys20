@@ -1,6 +1,6 @@
 import sys
 from particle import Particle
-from n_particle_simulation import NParticleSimulation
+from n_particle_system import NParticleSystem
 from vec3 import Vec3
 
 from matplotlib import animation, pyplot as plt
@@ -88,7 +88,7 @@ def task_a():
     p2 = Particle(Vec3(0.97000436, -0.24308753, 0.0), Vec3(-0.46620368, -0.43236573, 0.0), 1.0)
     p3 = Particle(Vec3(0.0, 0.0, 0.0), Vec3(0.93240737, 0.86473146, 0.0), 1.0)
 
-    n_body_system = NParticleSimulation([p1, p2, p3])
+    n_body_system = NParticleSystem([p1, p2, p3])
 
     n_steps = 50000
     h = 0.001

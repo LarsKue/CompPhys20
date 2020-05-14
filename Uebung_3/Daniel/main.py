@@ -96,7 +96,7 @@ def deviation(y, _, r):
 
 def praesenz(y0: Union[float, int], x0: Union[float, int], x1: Union[float, int], f: Callable, f_exact: Callable):
     r = 1
-    hs = [1, 0.1, 0.01]
+    hs = [1, 0.1, 0.01, 0.001, 0.0001]
 
     plt.figure(figsize=(8, 8))
     for h in hs:
@@ -104,13 +104,15 @@ def praesenz(y0: Union[float, int], x0: Union[float, int], x1: Union[float, int]
         x = np.linspace(x0, x1, n)
         # solve the equation
         yn, xn = rk4(np.array([y0]), np.array([x0]), f, h, n, r)
+        yn = yn.reshape(yn.shape[0],)
         err = np.mean(np.abs(yn - f_exact(xn, r)) / f_exact(xn, r))
-        plt.plot(xn, yn, label='stepsize={}, mean error={}'.format(h, err))
+
+        plt.plot(xn, yn, label='stepsize={}, mean error={:.2e}'.format(h, err))
 
     n_max = int((x1 - x0) / hs[-1])
     x = np.linspace(x0, x1, n_max)
     plt.plot(x, f_exact(x, r), label="exact")
-    plt.legend()
+    plt.legend(loc="upper right")
     plt.title('rk4 with different step sizes')
     plt.savefig('rk4step.pdf')
     plt.show()
