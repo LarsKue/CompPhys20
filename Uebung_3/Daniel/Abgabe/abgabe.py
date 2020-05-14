@@ -93,14 +93,15 @@ def energie_pot(pos_alt, pos_neu, massen):
     for x in range(3):
         for y in range(3):
             if x < y:
-                pot += massen[x] * massen[y] * ((1 / distance(pos_alt[x], pos_alt[y])) - (1 / distance(pos_neu[x], pos_neu[y])))
+                pot += massen[x] * massen[y] * (
+                            (1 / distance(pos_alt[x], pos_alt[y])) - (1 / distance(pos_neu[x], pos_neu[y])))
     return pot
 
 
 def energie_kin(massen, geschw):
     kin = 0
     for x in range(3):
-        kin += 1/2 * massen[x] * Vec3.abs_sq(geschw[x])
+        kin += 1 / 2 * massen[x] * Vec3.abs_sq(geschw[x])
     return kin
 
 
@@ -118,6 +119,7 @@ def minima_suchen(pos, h):
         else:
             runter = False
     return minima
+
 
 def minima_der_minima(minima):
     mini_minima = []
@@ -252,16 +254,16 @@ def task_b():
     '''This particle setup was calculated by hand'''
     n_body_system = NParticleSimulation([p1, p2, p3])
 
-
     n_steps = 10000
-    h = 0.0005
+    h = 0.001
 
     e_kin_alt = energie_kin([p.mass for p in n_body_system.particles], [p.velocity for p in n_body_system.particles])
     dist1 = [distance(p1.position, p2.position)]
     dist2 = [distance(p2.position, p3.position)]
     dist3 = [distance(p1.position, p3.position)]
     positions = [[p.position for p in n_body_system.particles]]
-    energy_tot = [energie_pot(positions[0], positions[0], [p1.mass, p2.mass, p3.mass]) + energie_kin([p.mass for p in n_body_system.particles], [p.velocity for p in n_body_system.particles]) - e_kin_alt]
+    energy_tot = [energie_pot(positions[0], positions[0], [p1.mass, p2.mass, p3.mass]) + energie_kin(
+        [p.mass for p in n_body_system.particles], [p.velocity for p in n_body_system.particles]) - e_kin_alt]
     for i in range(n_steps):
         print("\rcalculation progress: t = {:.2f} / {:.2f} ({:.2f}%)".format(i * h, n_steps * h, 100 * i / n_steps),
               end="")
@@ -270,9 +272,13 @@ def task_b():
         dist1.append(distance(p1.position, p2.position))
         dist2.append(distance(p2.position, p3.position))
         dist3.append(distance(p1.position, p3.position))
-        energy_tot.append(energie_pot(positions[0], positions[i + 1], [p.mass for p in n_body_system.particles]) + energie_kin([p.mass for p in n_body_system.particles], [p.velocity for p in n_body_system.particles]) - e_kin_alt)
-    f = file('minima.txt', 'w')
-    f.write(minima_der_minima(minima_suchen(dist1, h) + minima_suchen(dist2, h) + minima_suchen(dist3, h)))
+        energy_tot.append(
+            energie_pot(positions[0], positions[i + 1], [p.mass for p in n_body_system.particles]) + energie_kin(
+                [p.mass for p in n_body_system.particles],
+                [p.velocity for p in n_body_system.particles]) - e_kin_alt)
+    minima = (minima_der_minima(minima_suchen(dist1, h) + minima_suchen(dist2, h) + minima_suchen(dist3, h)))
+    with open('mini{}.txt'.format(h), 'w') as schreiberling:
+        schreiberling.writelines("%s\n" % element for element in minima)
     print("\rcalculation progress: done.")
     xax = np.linspace(0, h * n_steps, int(n_steps + 1))
     plt.figure(1, figsize=(8, 8))
@@ -283,20 +289,27 @@ def task_b():
     plt.xlabel('time')
     plt.ylabel('distance')
     plt.legend()
-    plt.savefig('distances.pdf')
+    plt.savefig('distances{}.pdf'.format(h))
     plt.figure(2, figsize=(8, 8))
     plt.plot(xax, energy_tot)
     plt.yscale('log')
     plt.xlabel('timestep')
     plt.ylabel('error of the total energy of the system')
     plt.title('development of the total energy over time')
+    plt.savefig('energyerror{}.pdf'.format(h))
     print(e_kin_alt)
-    plot_animation(positions, h, save_as="particle_animation.mp4")
+    plot_animation(positions, h, save_as="particle_animation{}.mp4".format(h))
+'''For a step size smaller than 0.001, you can see the first five points of minimum separation. The program is 
+by far not perfect, this you can see from the energy error. When the particles come close to each other, the 
+error in energy get higher each time. This leads in the end to the catapultation of two particles with a big gain 
+of energy. This can't be prevented, even with a smaller step size. A smaller step size pushes this effect only to
+a later time. In the file name of every plot, you can read the integration step, so you can easily compare the 
+effect of a change'''
 
 
 def main(argv: list) -> int:
-    # praesenz(1, 0, 10, deviation, exact)
-    # task_a()
+    praesenz(1, 0, 10, deviation, exact)
+    task_a()
     task_b()
     return 0
 
