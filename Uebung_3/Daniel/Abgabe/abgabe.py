@@ -85,6 +85,7 @@ def plot_animation(positions: List[List[Vec3]], time_step: Union[float, int], li
 
 
 def distance(v1, v2):
+    # simple function to calculate the distance between particle v1 and particle v2
     return math.sqrt(Vec3.abs_sq(v1 - v2))
 
 
@@ -108,7 +109,7 @@ def energie_kin(massen, geschw):
 
 
 def minima_suchen(pos, h):
-    # in dieser Funktion wird nach Minima gesucht in den übergebenen Distanzen der einzelnen Körper gesucht
+    # search for minima in the distance data by checking out if the previous value is bigger and the following value is bigger
     minima = []
     runter = pos[0] > pos[1]
     for x in range(len(pos) - 1):
@@ -119,7 +120,8 @@ def minima_suchen(pos, h):
 
 
 def minima_der_minima(minima):
-    # in dieser Funktion werden die ersten 5 Näherungen der Körper aus allen Minima der Distanzen herausgesucht
+    # return the first five closest encounters, this is necessary because the minima list is not in a good order, because
+    # it returns the minimas in the way the three distance lists were processed
     mini_minima = []
     for c in range(5):
         for x in range(len(minima)):
@@ -174,17 +176,19 @@ def rk4(y0, x0, f, h, n, *args, **kwargs):
 
 
 def exact(x, t):
+    # this is the exact function for the comparison
     return np.exp(-t * x)
 
 
 # Be advised that the integration can take a while for large values of n (e.g >=10^5).
 def deviation(y, _, r):
+    # this is the deviation function given in the task
     return -r * y
 
 
 def praesenz(y0: Union[float, int], x0: Union[float, int], x1: Union[float, int], f: Callable, f_exact: Callable):
-    r = 1
-    hs = [1, 0.1, 0.01, 0.001, 0.0001]
+    r = 1 # given parameter r
+    hs = [1, 0.1, 0.01, 0.001, 0.0001] # step sizes witch are used for the calculation
 
     plt.figure(figsize=(8, 8))
     for h in hs:
