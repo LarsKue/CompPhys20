@@ -34,7 +34,8 @@ def step_numerov(h: Union[float, int], k0: Union[float, int], y0: Union[float, i
     return factor_1 * y1 + factor_0 * y0
 
 
-def solve_numerov(f: Callable, h: Union[float, int], n_steps: int, y0: Union[float, int], y1: Union[float, int], *args, **kwargs):
+def solve_numerov(f: Callable, h: Union[float, int], n_steps: int, y0: Union[float, int], y1: Union[float, int], *args,
+                  **kwargs):
     """
     Solve the ODE y'' + f(x) y(x) = 0
     :param f: a function that returns the factor in the above equation for a given x
@@ -56,7 +57,6 @@ def solve_numerov(f: Callable, h: Union[float, int], n_steps: int, y0: Union[flo
         k1 = f(h * (i + 1), *args, **kwargs)
 
         if result is not None:
-
             y0 = y1
             y1 = result / (1 + h ** 2 * k1 / 12)
 
@@ -72,7 +72,6 @@ def analytical(x, n):
 
 
 def main(argv: list) -> int:
-
     h = 0.01
     n_steps = 300
     n_order = 0
