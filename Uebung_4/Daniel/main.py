@@ -6,25 +6,26 @@ from matplotlib import pyplot as plt
 import math
 
 
-def minima_suchen(pos, h):
+def minima_position(pos):
     # search for minima in the distance data by checking out if the previous value is bigger and the following value is bigger
     minima = []
     runter = pos[0] > pos[1]
-    for x in range(len(pos) - 1):
-        if runter is True and pos[x] < pos[x + 1]:
-            minima.append(x * h)
-        runter = pos[x] > pos[x + 1]
+    for n in range(len(pos) - 1):
+        if runter and pos[n] < pos[n + 1]:
+            minima.append(n)
+        runter = pos[n] > pos[n + 1]
     return minima
 
 
 def k(x, n):
+    # k-function for the presence task
     epsilon = n + 0.5
     return 2 * epsilon - x ** 2
 
 
-def k2(x,n):
-    epsilon = n+1/2
-    return epsilon-x
+def k2(x, epsilon):
+    # k-function for the homework
+    return epsilon - x
 
 
 def is_even(n):
@@ -91,8 +92,9 @@ def presence(argv: list) -> int:
     h = 0.01
     n_steps = 300
     n_order = 0
-
     a = 1
+
+    # check out if n is even or not and set the starting values to the corresponding values
     if is_even(n_order):
         y0 = a
         y1 = y0 - h ** 2 * k(0, n_order) * y0 / 2
@@ -103,10 +105,12 @@ def presence(argv: list) -> int:
     # y0 = analytical(0, n_order)
     # y1 = analytical(h, n_order)
 
+    # integration with the numerov scheme
     t, y = zip(*list(solve_numerov(k, h, n_steps, y0, y1, n_order)))
     t = np.array(t)
     y = np.array(y)
 
+    # analytical solution
     y_analytical = analytical(t, n_order)
 
     plt.figure(figsize=(10, 8))
@@ -125,37 +129,90 @@ def presence(argv: list) -> int:
 
     return 0
 
-# Aufgabe A
+
+""" As you can see, if you refactor the solution you got for the numerov scheme, it is almost the same as the analytical
+solution. Even for the relative big step size of 0.01, you have to zoom in a lot to see the error."""
+
+
 def taska():
+    # settings, similar to the presence task
     h = 0.01
     n_steps = 1000
-    n_order = [1,3]
+    e_order = [1, 3]
     a = 1
-    for j in n_order:
+
+    for j in e_order:
         if is_even(j):
             y0 = a
             y1 = y0 - h ** 2 * k2(0, j) * y0 / 2
         else:
             y0 = 0
             y1 = a
+
         t, y = zip(*list(solve_numerov(k2, h, n_steps, y0, y1, j)))
         t = np.array(t)
         y = np.array(y)
-        plt.plot(t,y,label="n={}".format(j))
+
+        plt.plot(t, y, label="e={}".format(j))
+
     plt.legend()
-    plt.ylim(-3e6,3e6)
+    plt.ylim(-3e6, 3e6)
     plt.xlabel("x")
     plt.ylabel("y(x)")
     plt.savefig("neutrons.pdf")
     plt.show()
 
 
+""" I ecided to plot the solution for n=1 and n=3. You can see that the divergence of e=1 is faster than e=3. But if
+you set the y-limits symetrically, you can see that e=1 diverges towards infinity and e=3 towards minus infinity. 
+The length x is z/z0 with z0 = h²/2m² (h is the reduced planck factor)
+The energy e is p²/h²
+"""
+
+
 def taskb():
+    # settings
+    h = 0.01
+    n_steps = 1000
+    # all e values to check if it has a bound solution
+    e_all = np.linspace(0, 10, 10000)
+    a = 1
+    y0 = 0
+    y1 = a
+    y10 = []
+
+    # calculation of the numerov integration for every n and storation of the last value
+    for j in e_all:
+        t, y = zip(*list(solve_numerov(k2, h, n_steps, y0, y1, j)))
+        y10.append(y[len(y) - 1])
+
+    # find the minimas of the absolute values and find out their e's
+    yinf = np.abs(np.array(y10))
+    factor = e_all[len(e_all) - 1] / len(e_all)
+    minima = factor * np.array(minima_position(yinf))
+
+    # print the first three bound solutions
+    for i in minima[:3]:
+        t, y = zip(*list(solve_numerov(k2, h, n_steps, y0, y1, i)))
+        t = np.array(t)
+        y = np.array(y)
+        plt.plot(t, y, label="e={}".format(i))
+    plt.legend()
+    plt.xlabel("x")
+    plt.ylabel("y(x)")
+    plt.savefig("bound_solutions.pdf")
+    plt.show()
+
+
+""" For better accuracy, we decided to find the bound solutions with an accuracy of 0.001. The first bound solution 
+seems to diverge, but much slower than what we saw in the first task. This is due to the limited accuracy of n. The other
+ two solutions seem to go towards zero."""
 
 
 def main():
-    # presence(sys.argv)
-    # taska()
+    presence(sys.argv)
+    taska()
+    taskb()
     return 0
 
 
