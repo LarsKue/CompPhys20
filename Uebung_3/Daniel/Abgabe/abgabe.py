@@ -111,11 +111,11 @@ def energie_kin(massen, geschw):
 def minima_suchen(pos, h):
     # search for minima in the distance data by checking out if the previous value is bigger and the following value is bigger
     minima = []
-    runter = pos[0] > pos[1]
-    for x in range(len(pos) - 1):
-        if runter is True and pos[x] < pos[x + 1]:
-            minima.append(x * h)
-        runter = pos[x] > pos[x + 1]
+    down = pos[1] < pos[0]
+    for i in range(len(pos) - 1):
+        if down and pos[i] < pos[i + 1]:
+            minima.append(i * h)
+        down = pos[i] > pos[i + 1]
     return minima
 
 
