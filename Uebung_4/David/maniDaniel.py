@@ -6,59 +6,25 @@ from matplotlib import pyplot as plt
 import math
 
 
-def get_k(x, n):
-    epsilon = n + 1/2
-    return 2 * epsilon - x**2
-
-
-def numerov(k_, k_vor, k_vorvor, y_vor, y_vorvor, h):
-    return (2 * (1 - (5 / 12) * h**2 * k_vor) * y_vor - (1 + (1 / 12) * h**2 * k_vorvor) * y_vorvor) / (1 + (1/12) * h**2 * k_)
-
-
-def algo(h, iterations, n, a):
-    k = []
-    y = []
-    k.append(get_k(0, n))
-    k.append(get_k(h, n))
-    if a%2 == 0:
-        y.append(a)
-        y.append(y[0] - h**2 * k[0] * y[0] / 2)
-    else:
-        y.append(0)
-        y.append(a)
-    x = 0
-    for i in range(iterations):
-        if i > 1:
-            k.append(get_k(x, n))
-            y.append(numerov(k[i], k[i - 1], k[i - 2], y[i - 1], y[i - 2], h))
-        x += h
-    return y
-
-
-def ana(x, n):
-    hermit = sc.eval_hermite(n, x)
-    return hermit / (2**n * math.factorial(n) * math.sqrt(np.pi)) * np.exp(- (x**2 / 2))
-
-
-def main1():
-    a = 1
-    h = 0.01
-    iterations = 300
-    n = 0
-    y_algo = algo(h, iterations, n, a)
-    plt.plot(h * np.linspace(0, 300, 300), y_algo)
-    plt.plot(h * np.linspace(0, 300, 300), ana(h * np.linspace(0, 300, 300), n))
-    plt.show()
-
-
-
-
-
+def minima_suchen(pos, h):
+    # search for minima in the distance data by checking out if the previous value is bigger and the following value is bigger
+    minima = []
+    runter = pos[0] > pos[1]
+    for x in range(len(pos) - 1):
+        if runter is True and pos[x] < pos[x + 1]:
+            minima.append(x * h)
+        runter = pos[x] > pos[x + 1]
+    return minima
 
 
 def k(x, n):
     epsilon = n + 0.5
     return 2 * epsilon - x ** 2
+
+
+def k2(x,n):
+    epsilon = n+1/2
+    return epsilon-x
 
 
 def is_even(n):
@@ -121,7 +87,10 @@ def analytical(x, n):
     return eval_hermite(n, x) / math.sqrt(2 ** n * math.factorial(n) * math.sqrt(np.pi)) * math.exp(- x ** 2 / 2)
 
 
-def main(argv: list) -> int:
+def sign(x): return 1 if x >= 0 else -1
+
+
+def presence(argv: list) -> int:
     h = 0.01
     n_steps = 300
     n_order = 0
@@ -154,10 +123,83 @@ def main(argv: list) -> int:
     plt.xlabel("t")
     plt.ylabel("y")
     plt.legend()
+    plt.savefig("presence.pdf")
     plt.show()
 
     return 0
 
 
+def taska():
+    h = 0.01
+    n_steps = 1000
+    n_order = [1,3]
+    a = 1
+    for j in n_order:
+        if is_even(j):
+            y0 = a
+            y1 = y0 - h ** 2 * k2(0, j) * y0 / 2
+        else:
+            y0 = 0
+            y1 = a
+        t, y = zip(*list(solve_numerov(k2, h, n_steps, y0, y1, j)))
+        t = np.array(t)
+        y = np.array(y)
+        plt.plot(t,y,label="n={}".format(j))
+    plt.legend()
+    plt.ylim(-3e6,3e6)
+    plt.xlabel("x")
+    plt.ylabel("y(x)")
+    plt.savefig("neutrons.pdf")
+    plt.show()
+
+
+def eigenwert(n, wert, liste):
+    h = 0.01
+    n_steps = 1000
+    a = 1
+    if is_even(n):
+        y0 = a
+        y1 = y0 - h ** 2 * k2(0, n) * y0 / 2
+    else:
+        y0 = 0
+        y1 = a
+    t, y = zip(*list(solve_numerov(k2, h, n_steps, y0, y1, n)))
+    if sign(y[len(y) - 1]) != sign(wert):
+        if abs(wert) > abs(y[len(y) - 1]):
+            liste.append(n)
+        else:
+            liste.append(n - 0.01)
+        if len(liste) == 3:
+            print("ok")
+            return liste
+    eigenwert(n + 0.01, y[len(y) - 1], liste)
+    return liste
+
+
+
+def taskb():
+    h = 0.01
+    n_steps = 1000
+    n = 0
+    a = 1
+    liste = []
+    if is_even(n):
+        y0 = a
+        y1 = y0 - h ** 2 * k2(0, n) * y0 / 2
+    else:
+        y0 = 0
+        y1 = a
+    t, y = zip(*list(solve_numerov(k2, h, n_steps, y0, y1, n)))
+    liste = eigenwert(0.01, y[len(y) - 1], liste)
+    print(liste, len(liste))
+
+
+def main():
+    # presence(sys.argv)
+    # taska()
+    taskb()
+    return 0
+
+
 if __name__ == "__main__":
-    main(sys.argv)
+    main()
