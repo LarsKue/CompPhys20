@@ -22,9 +22,9 @@ def k(x, n):
     return 2 * epsilon - x ** 2
 
 
-def k2(x,n):
-    epsilon = n+1/2
-    return epsilon-x
+def k2(x, n):
+    epsilon = n + 1 / 2
+    return epsilon - x
 
 
 def is_even(n):
@@ -87,7 +87,8 @@ def analytical(x, n):
     return eval_hermite(n, x) / math.sqrt(2 ** n * math.factorial(n) * math.sqrt(np.pi)) * math.exp(- x ** 2 / 2)
 
 
-def sign(x): return 1 if x >= 0 else -1
+def sign(x):
+    return 1 if x >= 0 else -1
 
 
 def presence(argv: list) -> int:
@@ -132,7 +133,7 @@ def presence(argv: list) -> int:
 def taska():
     h = 0.01
     n_steps = 1000
-    n_order = [1,3]
+    n_order = [1, 3]
     a = 1
     for j in n_order:
         if is_even(j):
@@ -144,9 +145,9 @@ def taska():
         t, y = zip(*list(solve_numerov(k2, h, n_steps, y0, y1, j)))
         t = np.array(t)
         y = np.array(y)
-        plt.plot(t,y,label="n={}".format(j))
+        plt.plot(t, y, label="n={}".format(j))
     plt.legend()
-    plt.ylim(-3e6,3e6)
+    plt.ylim(-3e6, 3e6)
     plt.xlabel("x")
     plt.ylabel("y(x)")
     plt.savefig("neutrons.pdf")
@@ -174,7 +175,6 @@ def eigenwert(n, wert, liste):
             return liste
     eigenwert(n + 0.01, y[len(y) - 1], liste)
     return liste
-
 
 
 def taskb():
