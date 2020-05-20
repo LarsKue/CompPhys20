@@ -29,6 +29,7 @@ def k2(x, epsilon):
 
 
 def is_even(n):
+    # function to check if n is even or odd
     return n % 2 == 0
 
 
