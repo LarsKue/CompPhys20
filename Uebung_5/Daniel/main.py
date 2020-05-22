@@ -27,57 +27,54 @@ def solution(L, b):
 
 
 def solution_lars(L, R, b):
-    n = len(b)
+    # LRx = b
+    n = b.shape[0]
+    # we call this x for memory allocation purposes,
+    # but in our first calculation this is y
     x = np.zeros(n)
 
+    # first we solve Ly = b where y = Rx
+    # L is a lower-left-triangular matrix
     for i in range(n):
         for j in range(i):
+            # subtract from the solution vector to get the individual solution for this line
             b[i] -= L[i][j] * x[j]
+        # still have to divide by the factor in the matrix
         x[i] = b[i] / L[i][i]
 
+    # now we have the values for y in the variable called x, and want to solve for Rx = y
+    # so the solution vector is now y
     b = x
+    # and we want to find x
     x = np.zeros(n)
 
+    # now we solve Rx = y in the same manner as above,
+    # only R is an upper-right-triangular matrix
     for i in reversed(range(n)):
         for j in reversed(range(i, n)):
             b[i] -= R[i][j] * x[j]
 
         x[i] = b[i] / R[i][i]
 
+    # x now contains the solution values for LRx = b
     return x
 
 
 def presence():
     epsilon = 1e-6
 
-    # A = np.array([
-    #     [epsilon, 0.5],
-    #     [0.5, 0.5]
-    # ])
-    #
-    # b = np.array([0.5, 0.25])
-
-    L = np.array([
-        [1, 0, 0],
-        [2, 1, 0],
-        [3, 4, 1]
+    A = np.array([
+        [epsilon, 0.5],
+        [0.5, 0.5]
     ])
 
-    R = np.array([
-        [1, 2, 3],
-        [0, 4, 5],
-        [0, 0, 6]
-    ])
+    b = np.array([0.5, 0.25])
 
-    b = np.array([3, 10, 12])
+    L, R = LR(A)
 
     print("Compare:")
     print(np.linalg.inv(L @ R) @ b)
     print("---------")
-
-    # L, R = LR(A)
-
-    # print(R)
 
     x = solution_lars(L, R, b)
     print("solution:", x)
