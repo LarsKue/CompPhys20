@@ -4,7 +4,7 @@ import numpy as np
 
 
 def praesenz() -> None:
-    epsilon = 1e-6
+    epsilon = 1e-16
 
     M = np.array([
         [epsilon, 0.5],
