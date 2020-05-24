@@ -5,24 +5,39 @@ import sys
 
 
 def LR(A):
+    '''
+    This is a function that does a LR-decomposition without pivoting
+    :param A: A is the Matrix you want to decompose
+    :return: L is the lower-left triangular matrix, R the upper right triangular matrix
+    '''
     n = len(A)
     R = A
     L = np.identity(n)
 
     for i in range(n - 1):
+        # since the first line of L and R stays the same, we do the iteration over the remaining n-1 lines
         for k in range(i + 1, n):
             L[k][i] = R[k][i] / R[i][i]
+            # Calculation of the matrix L by iteration over the columns
             for j in range(i, n):
                 R[k][j] = R[k][j] - L[k][i] * R[i][j]
+                # calculation of the matrix R by iteration over the columns
     return L, R
 
 
-def solution(L, b):
-    n = len(b)
-    x = np.zeros(n)
-    # print(x)
+def solution(L,R,b):
+    n=len(b)
+    m=len(b)-1
+    y=np.zeros((n))
+    x = np.zeros((n))
     for i in range(n):
-        x[i] = b[i] / L[i][i]
+        for k in range(i):
+            b[i] -= L[i][k]*y[k]
+        y[i]=(b[i])/L[i][i]
+    for i in reversed(range(n)):
+        for k in reversed(range(i,n)):
+            y[i] -= R[i][k]*x[k]
+        x[i]= (y[i])/R[i][i]
     return x
 
 
@@ -62,19 +77,20 @@ def solution_lars(L, R, b):
 
 def presence():
     epsilon = 1e-6
+    A = np.array([[epsilon,0.5],[0.5,0.5]])
+    b = np.array([[0.5],[0.25]])
+    L,R=LR(A)
+    x = solution(L,R,b)
+    print(A@x)
 
-    A = np.array([
-        [epsilon, 0.5],
-        [0.5, 0.5]
-    ])
 
-    b = np.array([0.5, 0.25])
 
-    L, R = LR(A)
+
 
     print("Compare:")
     print(np.linalg.inv(L @ R) @ b)
     print("---------")
+    print(R)
 
     x = solution_lars(L, R, b)
     print("solution:", x)
