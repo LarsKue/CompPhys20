@@ -62,11 +62,11 @@ class LinearEquationSystem:
         self.matrix = matrix.astype(float)
         self.solution = solution.astype(float)
 
-    def rows(self):
+    def num_rows(self):
         # number of rows in the matrix or the solution
         return len(self.matrix)
 
-    def matrix_columns(self):
+    def num_matrix_columns(self):
         # number of columns in the matrix
         return len(self.matrix[0])
 
@@ -112,7 +112,7 @@ class LinearEquationSystem:
             fnz = self.__normalize(i)
         except RuntimeError:
             return
-        for j in range(self.rows()):
+        for j in range(self.num_rows()):
             if i == j:
                 # do not subtract row from itself
                 continue
@@ -127,7 +127,7 @@ class LinearEquationSystem:
         is not of the correct dimension, you will have to add zeros to the end of the vector
         this method will overwrite self.matrix and self.solution
         """
-        for i in range(self.rows()):
+        for i in range(self.num_rows()):
             self.__normalize_and_isolate(i)
         # return the solution for convenience
         return self.solution
@@ -158,7 +158,7 @@ def homework():
     print(f"Compare Optional: {x} vs {y} (These will only be equivalent if M is square.)")
     # y = np.append(y, 0)
     # y = np.append(y, 0)
-    print(f"Compare Definitive: {M @ y[:lgs.matrix_columns()]} vs {b}")
+    print(f"Compare Definitive: {M @ y[:lgs.num_matrix_columns()]} vs {b}")
     # print(lgs.matrix)
 
     """ Task 4 """
