@@ -127,7 +127,7 @@ def homework():
 
     b = M @ x
 
-    lgs = LinearEquationSystem(deepcopy(M), b)
+    lgs = LinearEquationSystem(deepcopy(M), deepcopy(b))
 
     y = lgs.solve_tridiagonal()
 
