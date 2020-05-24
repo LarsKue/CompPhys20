@@ -77,13 +77,18 @@ class LinearEquationSystem:
         # normalize a row to its first nonzero component
         # and return the column index of this component
         fnz = self.__first_nonzero(i)
+        if fnz is None:
+            raise RuntimeError("Row cannot be normalized as it contains only zeros.")
         self.row_div(i, self.matrix[i][fnz])
         return fnz
 
     def __normalize_and_isolate(self, i):
         # normalize a row to its first nonzero component
         # and zero all other values in that column
-        fnz = self.__normalize(i)
+        try:
+            fnz = self.__normalize(i)
+        except RuntimeError:
+            return
         for j in range(self.rows()):
             if i == j:
                 # do not subtract row from itself
@@ -112,6 +117,7 @@ def homework():
         [0, 0, 3, 2, 1, 0],
         [0, 0, 0, 1, 4, 2],
         [0, 0, 0, 0, 1, 1],
+        # [0, 0, 0, 0, 0, 1],
     ])
 
     # print(f"Determinant: {np.linalg.det(M)}")
@@ -127,7 +133,7 @@ def homework():
     print(f"Compare Optional: {x} vs {y} (These will only be equivalent if M is square.)")
     # y = np.append(y, 0)
     # y = np.append(y, 0)
-    print(f"Compare Definitive: {M @ y} vs {b}")
+    print(f"Compare Definitive: {M @ y[:lgs.matrix_columns()]} vs {b}")
     print(lgs.matrix)
 
 
