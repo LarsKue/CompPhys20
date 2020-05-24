@@ -110,6 +110,7 @@ class LinearEquationSystem:
 
 
 def homework():
+    """ Task 3 Testing """
     M = np.array([
         [2, 3, 0, 0, 0, 0],
         [1, 4, 3, 0, 0, 0],
@@ -135,6 +136,35 @@ def homework():
     # y = np.append(y, 0)
     print(f"Compare Definitive: {M @ y[:lgs.matrix_columns()]} vs {b}")
     print(lgs.matrix)
+
+    """ Task 4 """
+
+    M = np.array([
+        [3, -1, 0, 0, 0, 0, 0, 0, 0, 0],
+        [-1, 3, -1, 0, 0, 0, 0, 0, 0, 0],
+        [0, -1, 3, -1, 0, 0, 0, 0, 0, 0],
+        [0, 0, -1, 3, -1, 0, 0, 0, 0, 0],
+        [0, 0, 0, -1, 3, -1, 0, 0, 0, 0],
+        [0, 0, 0, 0, -1, 3, -1, 0, 0, 0],
+        [0, 0, 0, 0, 0, -1, 3, -1, 0, 0],
+        [0, 0, 0, 0, 0, 0, -1, 3, -1, 0],
+        [0, 0, 0, 0, 0, 0, 0, -1, 3, -1],
+        [0, 0, 0, 0, 0, 0, 0, 0, -1, 3],
+    ])
+
+    b = np.array([0.2] * 10)
+
+    lgs = LinearEquationSystem(deepcopy(M), deepcopy(b))
+
+    print(f"Solution Task 4: {lgs.solve_tridiagonal()}")
+
+    """ Task 5 """
+
+    y = M @ lgs.solution
+
+    print(f"Original RHS: {b}")
+    print(f"New RHS: {y}")
+    print(f"Deviation: {y - b}")
 
 
 def main(argv: list) -> int:
