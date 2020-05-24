@@ -1,9 +1,26 @@
 
+"""
+Submission for Uebung 5 for Computational Physics 2020
+Group Members:
+Daniel Kreuzberger
+Lars Kuehmichel
+David Weinand
+"""
+
 import sys
 import numpy as np
 from typing import Iterable, Union
 import math
 from copy import deepcopy
+
+
+"""
+How to use:
+This one is very self-explanatory. Run the file with
+python main.py
+and look at the homework function at the bottom of this file to see how to use the class
+LinearEquationSystem
+"""
 
 
 def praesenz() -> None:
@@ -36,6 +53,12 @@ def first_nonzero(l: Iterable[Union[int, float]]):
 
 class LinearEquationSystem:
     def __init__(self, matrix: np.ndarray, solution: np.ndarray):
+        """
+        Linear Equation System Mx = b
+        :param matrix: M
+        :param solution: b
+        """
+        # we want floating point types to avoid division errors
         self.matrix = matrix.astype(float)
         self.solution = solution.astype(float)
 
@@ -101,7 +124,8 @@ class LinearEquationSystem:
         """
         solve the linear equation system if self.matrix is tri-diagonal
         note that if self.matrix is not square, the initial solution provided by this
-        is not of the correct dimension, you will have to add zeros to the end of the vector.
+        is not of the correct dimension, you will have to add zeros to the end of the vector
+        this method will overwrite self.matrix and self.solution
         """
         for i in range(self.rows()):
             self.__normalize_and_isolate(i)
@@ -135,9 +159,10 @@ def homework():
     # y = np.append(y, 0)
     # y = np.append(y, 0)
     print(f"Compare Definitive: {M @ y[:lgs.matrix_columns()]} vs {b}")
-    print(lgs.matrix)
+    # print(lgs.matrix)
 
     """ Task 4 """
+    print("\nTask 4:")
 
     M = np.array([
         [3, -1, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -156,14 +181,18 @@ def homework():
 
     lgs = LinearEquationSystem(deepcopy(M), deepcopy(b))
 
-    print(f"Solution Task 4: {lgs.solve_tridiagonal()}")
+    # the solution is symmetrical, as is to be expected
+    print(f"Solution: {lgs.solve_tridiagonal()}")
 
     """ Task 5 """
+    print("\nTask 5:")
 
     y = M @ lgs.solution
 
+    # these are identical
     print(f"Original RHS: {b}")
     print(f"New RHS: {y}")
+    # the deviation is (within floating point rounding errors) zero
     print(f"Deviation: {y - b}")
 
 
