@@ -15,7 +15,7 @@ We have $Ax = b$ with a tridiagonal matrix $A$ of dimension $N \times N$, so we 
 \begin{lstlisting}
 for i := 1 to N-1:
     factor = A$_{i+1, i}$ / A$_{i, i}$
-    # calculate the factor with which we have to multiply the previous row and add it to the next row to eleminate the left off-diagonal element
+    # calculate the factor with which we have to multiply the previous row and add it to the next row to eliminate the left off-diagonal element
     b$_{i+1}$ = b$_{i+1}$ - factor * b$_{i}$
     # update the vector b so the solution stays the same
     for k := 1 to N:
