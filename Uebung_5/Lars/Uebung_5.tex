@@ -1,0 +1,43 @@
+\documentclass[11pt, a4paper]{article}
+\usepackage{listings}
+%\usepackage{bera}
+\lstset{basicstyle=\ttfamily, mathescape=true, breaklines=true}
+
+\title{Homework 5}
+\date{Due May 29, 2020}
+\author{Daniel Kreuzberger, Lars Kuehmichel, David Weinand}
+
+\begin{document}
+\maketitle
+\section{Expression for Gaussian Elimination}
+We have $Ax = b$ with a tridiagonal matrix $A$ of dimension $N \times N$, so we can start directly without having to reorder the rows. The first row of $A$ will stay the same, so we do an iteration over $N-1$ other rows:
+
+\begin{lstlisting}
+for i := 1 to N-1:
+    factor = A$_{i+1, i}$ / A$_{i, i}$
+    # calculate the factor with which we have to multiply the previous row and add it to the next row to eleminate the left off-diagonal element
+    b$_{i+1}$ = b$_{i+1}$ - factor * b$_{i}$
+    # update the vector b so the solution stays the same
+    for k := 1 to N:
+        A$_{i+1, k}$ = A$_{i+1, k}$ - factor * A$_{i, k}$
+        # update the row i+1
+\end{lstlisting}
+
+Wit this algorithm, we get an upper right triangular matrix $A$ and an updated vector $b$. By doing backward substitution, we can get the solution of the linear equation system.
+\newpage
+\section{Backward Substitution}
+We have $Ax = b$ with an upper right triangular matrix $A$ of dimension $N \times N$. We have to start with:
+\begin{lstlisting}
+x$_{N}$ = b$_{N}$ / A$_{N, N}$
+
+for i := 1 to N-1:
+    for k := N-(i-1) to N:
+        n$_{N-i}$ = n$_{N-i}$ - A$_{N-i, k}$ * x$_{k}$
+        # since the off-diagonal elements are not zero, we have to subtract them times the solution x
+        x$_{N-i}$ = b$_{N-1}$ / A$_{N-i, N-i}$
+\end{lstlisting}
+
+with this algorithm, we get the solution vector $x$.
+
+
+\end{document}
