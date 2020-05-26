@@ -70,33 +70,33 @@ class LinearEquationSystem:
         # number of columns in the matrix
         return len(self.matrix[0])
 
-    def row_add(self, i, j, factor=1):
+    def row_add(self, i: int, j: int, factor: Union[int, float] = 1):
         # add row j to row i
         self.matrix[i] += factor * self.matrix[j]
         self.solution[i] += factor * self.solution[j]
 
-    def row_sub(self, i, j, factor=1):
+    def row_sub(self, i: int, j: int, factor: Union[int, float] = 1):
         # subtract row j from row i
         self.matrix[i] -= factor * self.matrix[j]
         self.solution[i] -= factor * self.solution[j]
 
-    def row_mul(self, i, factor):
+    def row_mul(self, i: int, factor: Union[int, float]):
         # multiply row i by a factor
         self.matrix[i] *= factor
         self.solution[i] *= factor
 
-    def row_div(self, i, factor):
+    def row_div(self, i: int, factor: Union[int, float]):
         # divide row i by a factor
         self.matrix[i] /= factor
         self.solution[i] /= factor
 
-    def __first_nonzero(self, i):
+    def __first_nonzero(self, i: int):
         # get the index of the first nonzero element in row i
         for j, item in enumerate(self.matrix[i]):
             if not math.isclose(item, 0):
                 return j
 
-    def __normalize(self, i):
+    def __normalize(self, i: int):
         # normalize a row to its first nonzero component
         # and return the column index of this component
         fnz = self.__first_nonzero(i)
@@ -105,7 +105,7 @@ class LinearEquationSystem:
         self.row_div(i, self.matrix[i][fnz])
         return fnz
 
-    def __normalize_and_isolate(self, i):
+    def __normalize_and_isolate(self, i: int):
         # normalize a row to its first nonzero component
         # and zero all other values in that column
         try:
