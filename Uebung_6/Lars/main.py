@@ -3,6 +3,7 @@ import numpy as np
 from xalglib import smatrixtd
 from scipy.linalg import eigh_tridiagonal
 import math
+from matplotlib import pyplot as plt
 
 
 def is_symmetric(m, rtol=1e-5, atol=1e-8):
@@ -34,35 +35,48 @@ def hamiltonian(n, l=0.1, N=30):
     return h
 
 
-def test_eigenvalue(a, l):
-    return math.isclose(np.linalg.det(a - l * np.identity(a.shape[0])), 0)
+def test_eigenvalue(a, l, *args, **kwargs):
+    return math.isclose(np.linalg.det(a - l * np.identity(a.shape[0])), 0, *args, **kwargs)
 
 
 def homework():
-    N = 30
     l = 0.1
 
-    np.set_printoptions(precision=2)
-
     for n in range(1):
-        h = hamiltonian(n, l, N)
-        # print("Hamiltonian:\n", h)
-        # print()
+        e0 = []
+        e1 = []
+        e2 = []
+        Ns = [10, 20, 30, 40, 50]
+        for N in Ns:
+            h = hamiltonian(n, l, N)
+            # print("Hamiltonian:\n", h)
+            # print()
 
-        ls, vs = solve_eigenproblem(h)
+            ls, vs = solve_eigenproblem(h)
 
-        for l, v in zip(ls, vs):
-            # print(f"Eigenvalue l = {l:5.2f} for Eigenvector v = {v}")
+            e0.append(ls[0])
+            e1.append(ls[1])
+            e2.append(ls[2])
 
-            print(np.linalg.det(h - l * np.identity(N)))
+            for l, v in zip(ls, vs):
 
-            # assert test_eigenvalue(h, l)
+                # print(f"Eigenvalue l = {l:5.2f} for Eigenvector v = {v}")
+                print(f"N = {N}, Eigenvalue {l}, quality: {np.linalg.det(h - l * np.identity(N))}")
 
+                # assert test_eigenvalue(h, l, abs_tol=1e-5)
 
-        print()
-        # only diagonal terms
-        # h *= np.identity(N)
-        # print(h)
+            print()
+            # only diagonal terms
+            # h *= np.identity(N)
+            # print(h)
+
+        plt.plot(Ns, e0)
+        plt.plot(Ns, e1)
+        plt.plot(Ns, e2)
+
+        plt.xlabel("N")
+        plt.ylabel("Eigenvalue")
+        plt.show()
 
 
 def main(argv: list) -> int:
