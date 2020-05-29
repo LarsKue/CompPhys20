@@ -1,4 +1,3 @@
-
 """
 Submission for Uebung 4 for Computational Physics 2020
 Group Members:
