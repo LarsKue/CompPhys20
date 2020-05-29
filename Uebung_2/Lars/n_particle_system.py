@@ -134,8 +134,8 @@ class NParticleSystem:
         # print("l4 =", l4s)
 
         for p, k1, k2, k3, k4, l1, l2, l3, l4 in zip(self.particles, k1s, k2s, k3s, k4s, l1s, l2s, l3s, l4s):
-            p.position += h * (k1 + k2 + k3 + k4) / 6
-            p.velocity += h * (l1 + l1 + l3 + l4) / 6
+            p.position += h * (k1 + 2 * k2 + 2 * k3 + k4) / 6
+            p.velocity += h * (l1 + 2 * l1 + 2 * l3 + l4) / 6
 
     def __len__(self):
         return len(self.particles)
