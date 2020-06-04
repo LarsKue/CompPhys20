@@ -2,7 +2,6 @@
 import numpy as np
 from xalglib import smatrixtd
 from scipy.linalg import eigh_tridiagonal
-import math
 from matplotlib import pyplot as plt
 
 
@@ -35,47 +34,29 @@ def hamiltonian(n, l=0.1, N=30):
     return h
 
 
-def test_eigenvalue(a, l, *args, **kwargs):
-    return math.isclose(np.linalg.det(a - l * np.identity(a.shape[0])), 0, *args, **kwargs)
-
-
 def homework():
+
     l = 0.1
 
-    for n in range(1):
-        e0 = []
-        e1 = []
-        e2 = []
-        Ns = [10, 20, 30, 40, 50]
+    for n in range(10):
+        Ns = np.arange(5, 50)
+        eigenvalues = []
         for N in Ns:
             h = hamiltonian(n, l, N)
-            # print("Hamiltonian:\n", h)
-            # print()
 
             ls, vs = solve_eigenproblem(h)
 
-            e0.append(ls[0])
-            e1.append(ls[1])
-            e2.append(ls[2])
+            ev = ls[0]
 
-            for l, v in zip(ls, vs):
+            eigenvalues.append(ev)
 
-                # print(f"Eigenvalue l = {l:5.2f} for Eigenvector v = {v}")
-                print(f"N = {N}, Eigenvalue {l}, quality: {np.linalg.det(h - l * np.identity(N))}")
-
-                # assert test_eigenvalue(h, l, abs_tol=1e-5)
-
-            print()
-            # only diagonal terms
-            # h *= np.identity(N)
-            # print(h)
-
-        plt.plot(Ns, e0)
-        plt.plot(Ns, e1)
-        plt.plot(Ns, e2)
+        # the eigenvalue visibly converges towards its analytical value
+        plt.figure(figsize=(10, 8))
+        plt.plot(Ns, eigenvalues)
 
         plt.xlabel("N")
         plt.ylabel("Eigenvalue")
+        plt.title(f"Harmonic Oscillator Eigenvalue Convergence for n = {n}")
         plt.show()
 
 
