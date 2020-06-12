@@ -29,9 +29,7 @@ def hamiltonian(n, l=0.1, N=30):
 
     h0 = (n + 0.5) * np.identity(N)
 
-    h = h0 + l * Qt4
-
-    return h
+    return h0 + l * Qt4
 
 
 def homework():
