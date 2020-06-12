@@ -1,16 +1,7 @@
 
 import numpy as np
-from xalglib import smatrixtd
-from scipy.linalg import eigh_tridiagonal
-
-
-def symmetric_to_tridiagonal(m):
-    return smatrixtd(m.tolist(), len(m), False)
-
-
-def solve_eigenproblem(m):
-    a, tau, d, e = symmetric_to_tridiagonal(m)
-    return eigh_tridiagonal(d, e)
+from scipy.linalg import eig
+from copy import deepcopy
 
 
 def jacobian(N, P, a, b, c, d):
@@ -44,10 +35,20 @@ def main(argv: list) -> int:
 
     d = np.array([85, 9, 35])
 
-    N = np.array([1, 2, 3])
-    P = np.array([4, 5, 6])
+    Ns = [np.zeros(3),
+          deepcopy(a)]
 
-    print(jacobian(N, P, a, b, c, d))
+    Ps = [np.zeros(3),
+          np.zeros(3)]
+
+    for N, P in zip(Ns, Ps):
+
+        print(jacobian(N, P, a, b, c, d))
+
+        ls, vs = eig(jacobian(N, P, a, b, c, d))
+
+        for i in range(len(ls)):
+            print(f"Eigenvalue {ls[i]}, Eigenvector {vs[i]}")
 
     return 0
 
