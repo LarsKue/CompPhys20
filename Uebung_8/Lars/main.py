@@ -45,7 +45,7 @@ def solve_rk4(f: Callable[[float, float], float], ts: Iterable[float], y0: float
         last_t = current_t
 
 
-def main(argv: list) -> int:
+def homework():
     a = np.array([56, 12, 35])
 
     b = np.array([
@@ -140,6 +140,9 @@ def main(argv: list) -> int:
 
         print("===============================================")
 
+
+def main(argv: list) -> int:
+    homework()
     return 0
 
 
