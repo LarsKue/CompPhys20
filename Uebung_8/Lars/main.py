@@ -132,6 +132,8 @@ def main(argv: list) -> int:
             plt.plot(t, [x[i].real for x in time_evolution], label=i+1)
 
         plt.legend()
+        plt.xlabel("t")
+        plt.ylabel("Population")
         # plt.yscale("log")
         plt.show()
 
