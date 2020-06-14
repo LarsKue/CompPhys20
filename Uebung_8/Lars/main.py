@@ -86,7 +86,7 @@ def main(argv: list) -> int:
     np.set_printoptions(precision=2, suppress=True)
 
     print("===============================================")
-    for N, P in zip(Ns, Ps):
+    for fig_num, (N, P) in enumerate(zip(Ns, Ps)):
         # print(f"N = {N}, P = {P}")
         # print("Jacobian:")
         # print(jacobian(N, P, a, b, c, d))
@@ -135,11 +135,11 @@ def main(argv: list) -> int:
         plt.xlabel("t")
         plt.ylabel("Population")
         # plt.yscale("log")
+        plt.savefig(f"figures/{fig_num}.png")
         plt.show()
 
-
-
         print("===============================================")
+
     return 0
 
 
