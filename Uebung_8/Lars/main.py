@@ -134,12 +134,12 @@ def homework():
         plt.legend()
         plt.xlabel("t")
         plt.ylabel("Population")
-        plt.title("Time evolution of the population around fixpoint "+str(fig_num))
+        plt.title(f"Time evolution of the population around fixpoint {fig_num:d}")
         # plt.yscale("log")
         plt.savefig(f"figures/{fig_num}.png")
         plt.show()
 
-        print("===============================================")
+        # print("===============================================")
 
 
 def main(argv: list) -> int:
