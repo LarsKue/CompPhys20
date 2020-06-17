@@ -50,7 +50,7 @@ def attendance():
 
 def homework():
 
-    for alpha in [-0.1, -0.01, -0.001, 0, 0.001]:
+    for alpha in [-2]:
     # for alpha in [-0.1]:
         beta = 1 / 7.3
 
@@ -59,7 +59,7 @@ def homework():
 
         t = np.linspace(0, 10, 1000)
 
-        n0 = np.linspace(-10, 100, 10000)
+        n0 = np.linspace(-100, 100, 10000)
 
         plt.plot(n0, f(0, n0), label=alpha)
     plt.grid()
