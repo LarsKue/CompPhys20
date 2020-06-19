@@ -19,7 +19,11 @@ def attendance() -> None:
 
     fig = plt.figure(figsize=(10, 8))
     ax = fig.add_subplot(111, projection="3d")
-    ax.plot_surface(l, r, P(l, b, sig, r))
+
+    zdata = P(l, b, sig, r)
+    ax.plot_surface(l, r, zdata, alpha=0.5)
+    ax.contour(l, r, zdata, levels=[0])
+    # ax.plot_wireframe(l, r, np.zeros_like(l), color="grey", alpha=0.3)
     ax.set_xlabel("l")
     ax.set_ylabel("r")
     ax.set_zlabel(r"$P(\lambda)$")
