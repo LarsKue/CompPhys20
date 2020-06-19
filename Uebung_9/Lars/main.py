@@ -62,33 +62,41 @@ def homework() -> None:
     sigma = 10
     b = 8 / 3
 
-    r = 1.5
+    rs = [0.5, 1.17, 1.3456, 25.0, 29.0]
 
-    def lorenz_attractor(t, v):
-        xp = sigma * (v.x - v.y)
-        yp = r * v.x - v.y - v.x * v.z
-        zp = v.x * v.y - b * v.z
+    for r in rs:
+        def lorenz_attractor(t, v):
+            xp = sigma * (v.x - v.y)
+            yp = r * v.x - v.y - v.x * v.z
+            zp = v.x * v.y - b * v.z
 
-        return Vec3(xp, yp, zp)
+            return Vec3(xp, yp, zp)
 
-    a0 = np.sqrt(b * (r - 1))
-    v0 = Vec3(a0, a0, r - 1)
-    v0 = Vec3(1, 1, 1)
-    t = np.linspace(0, 1, 1000)
+        epsilon = 1e-9
 
-    _, vs = zip(*list(solve_rk4(lorenz_attractor, t, v0)))
+        # choose initial conditions near fixed point
+        if r > 1:
+            a0 = np.sqrt(b * (r - 1))
+            v0 = Vec3(a0 + epsilon, a0 + epsilon, r - 1 + epsilon)
+        else:
+            v0 = Vec3(epsilon, epsilon, epsilon)
 
-    x = [v.x for v in vs]
-    y = [v.y for v in vs]
-    z = [v.z for v in vs]
+        # v0 = Vec3(1, 1, 1)
+        t = np.linspace(0, 1, 10000)
 
-    fig = plt.figure(figsize=(10, 8))
-    ax = fig.add_subplot(111, projection="3d")
-    ax.plot(x, y, z)
-    ax.set_xlabel("x")
-    ax.set_ylabel("y")
-    ax.set_zlabel("z")
-    plt.show()
+        _, vs = zip(*list(solve_rk4(lorenz_attractor, t, v0)))
+
+        x = [v.x for v in vs]
+        y = [v.y for v in vs]
+        z = [v.z for v in vs]
+
+        fig = plt.figure(figsize=(10, 8))
+        ax = fig.add_subplot(111, projection="3d")
+        ax.plot(x, y, z)
+        ax.set_xlabel("x")
+        ax.set_ylabel("y")
+        ax.set_zlabel("z")
+        plt.show()
 
 
 def main(argv: list) -> int:
