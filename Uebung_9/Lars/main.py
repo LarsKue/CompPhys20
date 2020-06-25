@@ -21,10 +21,14 @@ def solve_rk4(f: Callable[[float, float], float], ts: Iterable[float], y0: float
     last_t = next(it)
     yield last_t, y0
 
-    for current_t in it:
+    n = len(ts)
+
+    for i, current_t in enumerate(it):
         h = current_t - last_t
 
         _, y0 = step_rk4(f, last_t, h, y0)
+
+        print(f"\rprogress: {i} / {n} ({100 * i / n}%)", end="")
 
         yield current_t, y0
 
@@ -96,6 +100,13 @@ def homework1(sigma, b) -> None:
         y = [v.y for v in vs]
         z = [v.z for v in vs]
 
+        """
+        The first three plots show stable fixed points, where the solution oscillates slightly around the fixed point.
+        The last two plots show unstable fixed points, which you can see from the fact they move to a completely
+        different spot pretty quickly and then stay there, meaning they diverge from their first fixed point, but
+        find another stable fixed point at some time.
+        """
+
         fig = plt.figure(figsize=(10, 8))
         ax = fig.add_subplot(111, projection="3d")
         ax.plot(x, y, z)
@@ -105,36 +116,66 @@ def homework1(sigma, b) -> None:
         plt.show()
 
 
+def maxima(xdata, ydata):
+    if ydata[0] > ydata[1]:
+        yield xdata[0], ydata[0]
+
+    for i in range(1, len(xdata) - 1):
+        if ydata[i - 1] < ydata[i] > ydata[i + 1]:
+            yield xdata[i], ydata[i]
+
+    if ydata[-2] < ydata[-1]:
+        yield xdata[-1], ydata[-1]
+
+
 def homework2(sigma, b) -> None:
     r = 26.5
     lorenz_attractor = get_lorenz_attractor(r, sigma, b)
 
-    # v0 = init_conditions(r, b)
-    v0 = Vec3(1, 1, 1)
+    """
+    we tested two different initial points, one close to a fixed point and another arbitrarily chosen point
+    Both yield a function z_k+1 = f(z_k) which converges to a fixed point such that f(z_k) lies on the diagonal
+    after a number of iterations. Thus, its slope is m = +1, when we arrive at such a fixed point. You can clearly
+    see, which fixed point is stable and which isn't, by looking at whether the function converges towards the
+    diagonal or whether it crosses it (stable and unstable respectively).
+    """
 
-    k = 10000
+    v0 = init_conditions(r, b, epsilon=1e-3)
+    # v0 = Vec3(1, 1, 1)
+
+    k = 1000000
 
     # any higher than 1.5 and the system diverges
     t = np.linspace(0, 1.5, k)
 
     _, vs = zip(*list(solve_rk4(lorenz_attractor, t, v0)))
 
-    # z[i]
     z = [v.z for v in vs]
-    # z[k + 1]
-    zkpo = [z[i + 1] for i in range(len(z) - 1)]
 
-    plt.plot(z[:-1], zkpo)
+    tk, zk = zip(*list(maxima(t, z)))
+    # z[k + 1]
+    zkpo = [zk[i + 1] for i in range(len(zk) - 1)]
+
+    plt.plot(t, z)
+    plt.xlabel("t")
+    plt.ylabel("z")
+    plt.show()
+
+    plt.plot(zk[:-1], zkpo)
+    x = np.linspace(min(zk), max(zk), 1000)
+    plt.plot(x, x, label="identity")
+    plt.plot()
     plt.xlabel("$z_k$")
     plt.ylabel("$z_{k+1}$")
+    plt.legend()
     plt.show()
 
 
 def homework() -> None:
     sigma = 10
     b = 8 / 3
-    # homework1(sigma, b)
-    homework2(sigma, b)
+    homework1(sigma, b)
+    # homework2(sigma, b)
 
 
 def main(argv: list) -> int:
