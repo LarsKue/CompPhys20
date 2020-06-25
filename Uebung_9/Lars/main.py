@@ -176,6 +176,8 @@ def homework() -> None:
     b = 8 / 3
     homework1(sigma, b)
     # homework2(sigma, b)
+    homework1(sigma, b)
+    homework2(sigma, b)
 
 
 def main(argv: list) -> int:
