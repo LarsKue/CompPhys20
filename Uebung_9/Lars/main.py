@@ -58,28 +58,34 @@ def attendance() -> None:
     plt.show()
 
 
-def homework() -> None:
-    sigma = 10
-    b = 8 / 3
+def get_lorenz_attractor(r, sigma, b):
+    def lorenz_attractor(t, v):
+        xp = sigma * (v.x - v.y)
+        yp = r * v.x - v.y - v.x * v.z
+        zp = v.x * v.y - b * v.z
 
+        return Vec3(xp, yp, zp)
+
+    return lorenz_attractor
+
+
+def init_conditions(r, b, epsilon=0.0):
+    if r > 1:
+        a0 = np.sqrt(b * (r - 1))
+        v0 = Vec3(a0 + epsilon, a0 + epsilon, r - 1 + epsilon)
+    else:
+        v0 = Vec3(epsilon, epsilon, epsilon)
+
+    return v0
+
+
+def homework1(sigma, b) -> None:
     rs = [0.5, 1.17, 1.3456, 25.0, 29.0]
 
     for r in rs:
-        def lorenz_attractor(t, v):
-            xp = sigma * (v.x - v.y)
-            yp = r * v.x - v.y - v.x * v.z
-            zp = v.x * v.y - b * v.z
+        lorenz_attractor = get_lorenz_attractor(r, sigma, b)
 
-            return Vec3(xp, yp, zp)
-
-        epsilon = 1e-9
-
-        # choose initial conditions near fixed point
-        if r > 1:
-            a0 = np.sqrt(b * (r - 1))
-            v0 = Vec3(a0 + epsilon, a0 + epsilon, r - 1 + epsilon)
-        else:
-            v0 = Vec3(epsilon, epsilon, epsilon)
+        v0 = init_conditions(r, b, epsilon=1e-1)
 
         # v0 = Vec3(1, 1, 1)
         t = np.linspace(0, 1, 10000)
@@ -97,6 +103,36 @@ def homework() -> None:
         ax.set_ylabel("y")
         ax.set_zlabel("z")
         plt.show()
+
+
+def homework2(sigma, b) -> None:
+    r = 26.5
+    lorenz_attractor = get_lorenz_attractor(r, sigma, b)
+
+    # v0 = init_conditions(r, b)
+    v0 = Vec3(1, 1, 1)
+
+    k = 10000
+
+    # any higher than 1.5 and the system diverges
+    t = np.linspace(0, 1.5, k)
+
+    _, vs = zip(*list(solve_rk4(lorenz_attractor, t, v0)))
+
+    z = [v.z for v in vs]
+
+    plt.plot(t, z)
+    plt.title(f"z curve after {k} periods.")
+    plt.xlabel("t")
+    plt.ylabel("z")
+    plt.show()
+
+
+def homework() -> None:
+    sigma = 10
+    b = 8 / 3
+    # homework1(sigma, b)
+    homework2(sigma, b)
 
 
 def main(argv: list) -> int:
