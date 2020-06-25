@@ -119,12 +119,14 @@ def homework2(sigma, b) -> None:
 
     _, vs = zip(*list(solve_rk4(lorenz_attractor, t, v0)))
 
+    # z[i]
     z = [v.z for v in vs]
+    # z[k + 1]
+    zkpo = [z[i + 1] for i in range(len(z) - 1)]
 
-    plt.plot(t, z)
-    plt.title(f"z curve after {k} periods.")
-    plt.xlabel("t")
-    plt.ylabel("z")
+    plt.plot(z[:-1], zkpo)
+    plt.xlabel("$z_k$")
+    plt.ylabel("$z_{k+1}$")
     plt.show()
 
 
