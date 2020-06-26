@@ -1,6 +1,6 @@
 
 import random
-
+import numpy as np
 from matplotlib import pyplot as plt
 
 from random_number_generator import RandomNumberGenerator
@@ -51,8 +51,48 @@ def attendance():
     plt.show()
 
 
+def homework():
+
+    a = 0.5
+
+    # from normalization requirement
+    b = 2 / a ** 2
+
+    def p(x):
+        return b * x
+
+    def rejection_method(random_numbers):
+        result = []
+        for rand_num in random_numbers:
+            if rand_num > a:
+                continue
+            elif rand_num < 0:
+                continue
+            else:
+                if random.uniform(0, 1) < p(rand_num) / p(a):
+                    result.append(rand_num)
+
+        return result
+
+    n = 1000_000
+    r = [random.uniform(0, 1) for _ in range(n)]
+
+    n_bins = 300
+
+    plt.hist(r, bins=n_bins)
+    plt.show()
+
+    r = rejection_method(r)
+
+    plt.hist(r, bins=n_bins)
+    plt.show()
+
+
+
+
 def main(argv: list) -> int:
-    attendance()
+    # attendance()
+    homework()
     return 0
 
 
