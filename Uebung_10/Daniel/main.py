@@ -53,18 +53,20 @@ def homework():
                 if np.random.uniform(0, 1) < f(x):
                     r.append(x)
         return r
-
-    N = [10, 100, 1000, 10000, 100000, 1000000]
-
+    N=np.logspace(start=0,stop=6,num=60,dtype=int)
     def getpi(N):
+        diff=[]
         for g in N:
             randomunity = np.random.random_sample(g)
             rand = rejection(randomunity)
             pi = 4 * len(rand) / g
-            plt.scatter(g, np.abs(pi - np.pi))
-
-    getpi(N)
+            diff.append(np.abs(pi-np.pi))
+        return diff
+    diff = getpi(N)
+    plt.scatter(N,diff)
     plt.title('Difference between pi and our calculated value')
+    plt.ylabel('$|\pi-\pi_{calc}|$')
+    plt.xlabel('sample size n')
     plt.xscale('log')
     plt.ylim(0.0005, 1)
     plt.yscale('log')
