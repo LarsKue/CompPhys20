@@ -69,7 +69,7 @@ def homework():
             elif rand_num < 0:
                 continue
             else:
-                if random.uniform(0, 1) < p(rand_num) / p(a):
+                if random.uniform(0, a) < rand_num:
                     result.append(rand_num)
 
         return result
@@ -84,6 +84,8 @@ def homework():
 
     r = rejection_method(r)
 
+    x = np.linspace(0, a, 1000)
+    plt.plot(x, n / (b * n_bins) * p(x))
     plt.hist(r, bins=n_bins)
     plt.show()
 
