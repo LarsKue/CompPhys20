@@ -100,12 +100,33 @@ def homework2():
 
     def rejection_method(random_numbers):
         for rand_num in random_numbers:
-            if random.uniform(0, 1) <
+            if random.uniform(0, 1) < f(rand_num):
+                yield rand_num
+
+    n = 1000_000
+    n_bins = 300
+
+    r = list(rejection_method(random.uniform(0, 1) for _ in range(n)))
+
+    pi = 4 * len(r) / n
+
+    print(f"pi = {pi:.16f}")
+
+    fig = plt.figure(figsize=(9, 8))
+    ax = fig.add_subplot(111)
+
+    x = np.linspace(0, 1, 1000)
+    plt.plot(x, n / n_bins * f(x), label="fit")
+    plt.hist(r, bins=n_bins)
+
+    # make axes square
+    ax.set_aspect(1.0 / ax.get_data_ratio(), adjustable="box")
+    plt.show()
 
 
 
 def homework():
-    homework1()
+    # homework1()
     homework2()
 
 
