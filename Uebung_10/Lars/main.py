@@ -2,8 +2,19 @@
 import random
 import numpy as np
 from matplotlib import pyplot as plt
+from scipy.optimize import curve_fit
 
 from random_number_generator import RandomNumberGenerator
+
+
+def rel_error(uv, ev):
+    """
+    Calculate the relative error in an uncertain value to an exact value
+    :param uv: uncertain value
+    :param ev: exact value
+    :return: the relative error between the two
+    """
+    return abs(uv - ev) / max(abs(uv), abs(ev))
 
 
 def attendance():
@@ -72,7 +83,7 @@ def homework1():
                     yield rand_num
 
     # a good fit is achieved with n >= 1e6
-    n = 1000_000
+    n = 1_000_000
     r = [random.uniform(0, 1) for _ in range(n)]
 
     n_bins = 300
@@ -93,6 +104,26 @@ def homework1():
     plt.show()
 
 
+def calc_pi(n, return_r=False):
+    def f(x):
+        return np.sqrt(1 - x ** 2)
+
+    def rejection_method(random_numbers):
+        for rand_num in random_numbers:
+            if random.uniform(0, 1) < f(rand_num):
+                yield rand_num
+
+    r = list(rejection_method(random.uniform(0, 1) for _ in range(n)))
+
+    # calculate pi
+    pi = 4 * len(r) / n
+
+    if return_r:
+        return pi, r
+    else:
+        return pi
+
+
 def homework2():
 
     def f(x):
@@ -103,25 +134,48 @@ def homework2():
             if random.uniform(0, 1) < f(rand_num):
                 yield rand_num
 
-    n = 1000_000
+    n = 1_000_000
     n_bins = 300
 
-    r = list(rejection_method(random.uniform(0, 1) for _ in range(n)))
+    pi, r = calc_pi(n, return_r=True)
 
-    pi = 4 * len(r) / n
-
+    # This doesn't really get better than 3.141
     print(f"pi = {pi:.16f}")
+    print(f"relative error: {100 * rel_error(pi, np.pi)}%")
 
     fig = plt.figure(figsize=(9, 8))
     ax = fig.add_subplot(111)
 
+    # overplot f(x) scaled to set and bin size
     x = np.linspace(0, 1, 1000)
     plt.plot(x, n / n_bins * f(x), label="fit")
-    plt.hist(r, bins=n_bins)
+    plt.hist(r, bins=n_bins, label="set")
+
+    plt.legend()
 
     # make axes square
     ax.set_aspect(1.0 / ax.get_data_ratio(), adjustable="box")
     plt.show()
+
+    # get the relative error for different ns and plot it
+    # feel free to vary the stop and num parameters
+    # (though increasing both is not recommended because it would take too long)
+    ns = np.logspace(start=0, stop=5, num=300, dtype=int).tolist()
+    pis = [calc_pi(n) for n in ns]
+    rel_errs = [rel_error(pi, np.pi) for pi in pis]
+
+    plt.figure(figsize=(9, 8))
+    plt.plot(ns, rel_errs, marker="x", linewidth=0)
+    plt.xlabel("n")
+    plt.ylabel(r"$\frac{\Delta \pi}{\pi}$")
+    plt.title(r"Relative Error in Calculation of $\pi$")
+    plt.xscale("log")
+    plt.yscale("log")
+    plt.savefig("relative_errors.png")
+    plt.show()
+
+
+
 
 
 
