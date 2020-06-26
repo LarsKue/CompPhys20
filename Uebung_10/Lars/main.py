@@ -51,7 +51,7 @@ def attendance():
     plt.show()
 
 
-def homework():
+def homework1():
 
     a = 0.5
 
@@ -62,7 +62,6 @@ def homework():
         return b * x
 
     def rejection_method(random_numbers):
-        result = []
         for rand_num in random_numbers:
             if rand_num > a:
                 continue
@@ -70,26 +69,44 @@ def homework():
                 continue
             else:
                 if random.uniform(0, a) < rand_num:
-                    result.append(rand_num)
+                    yield rand_num
 
-        return result
-
+    # a good fit is achieved with n >= 1e6
     n = 1000_000
     r = [random.uniform(0, 1) for _ in range(n)]
 
     n_bins = 300
 
     plt.hist(r, bins=n_bins)
+    plt.title("Set of uniformly distributed random numbers")
     plt.show()
 
-    r = rejection_method(r)
+    r = list(rejection_method(r))
 
     x = np.linspace(0, a, 1000)
-    plt.plot(x, n / (b * n_bins) * p(x))
-    plt.hist(r, bins=n_bins)
+
+    # overplot equation 2.1 scaled to set and bin size
+    plt.plot(x, n * p(x) / p(n_bins), label="fit")
+    plt.hist(r, bins=n_bins, label="set")
+    plt.legend()
+    plt.title("Set of random numbers, distributed according to $p(x)$")
     plt.show()
 
 
+def homework2():
+
+    def f(x):
+        return np.sqrt(1 - x ** 2)
+
+    def rejection_method(random_numbers):
+        for rand_num in random_numbers:
+            if random.uniform(0, 1) <
+
+
+
+def homework():
+    homework1()
+    homework2()
 
 
 def main(argv: list) -> int:
