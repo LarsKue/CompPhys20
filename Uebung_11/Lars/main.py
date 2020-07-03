@@ -4,6 +4,8 @@ from matplotlib import pyplot as plt
 import random
 import math
 
+from custom_rng import CustomRNG
+
 
 def integrate_mc(f, n, xmin=0.0, xmax=1.0):
     """
@@ -46,6 +48,12 @@ def integrate_mc_ndim(f, n, bounds):
     return volume * sum(f(*[random.uniform(b[0], b[1]) for b in bounds]) for _ in range(n)) / n
 
 
+def integrate_mc_is(f, g, n, xmin, xmax):
+    crng = CustomRNG(g, xmin, xmax)
+    xs = crng.sample(size=n)
+    return sum(f(xs) / (n * g(xs)))
+
+
 def rel_error(uv, ev):
     """
     Calculate the relative error in an uncertain value to an exact value
@@ -56,7 +64,7 @@ def rel_error(uv, ev):
     return abs(uv - ev) / max(abs(uv), abs(ev))
 
 
-def attendance() -> None:
+def attendance1() -> None:
 
     def compute_print_and_get_relative_error(f, n, ai):
         nm = integrate_mc(f, n)
@@ -98,6 +106,43 @@ def attendance() -> None:
 
     # show the plot (do not comment this out)
     plt.show()
+
+
+def attendance2() -> None:
+    def f(x):
+        return (np.sin(x) / x) ** 2
+
+    def g(x):
+        return np.exp(-x ** 2 / 3) / 3.03831
+
+    xmin = -np.pi
+    xmax = np.pi
+
+    analytical_solution = 2.836303152265256900491560324599498858284906698590032543685
+
+    n = 100
+
+    print(f"numerical: {integrate_mc_is(f, g, n, xmin, xmax):12.9f}   analytical: {analytical_solution:12.9f}")
+
+
+    def f(x):
+        return x ** 2
+
+    def g(x):
+        return 5 * x ** 4
+
+    xmin = 0
+    xmax = 1
+
+    analytical_solution = 1 / 3
+
+    n = 100
+    print(f"numerical: {integrate_mc_is(f, g, n, xmin, xmax):12.9f}   analytical: {analytical_solution:12.9f}")
+
+
+def attendance() -> None:
+    attendance1()
+    attendance2()
 
 
 def homework() -> None:
